@@ -1,0 +1,243 @@
+:root {
+  --rf-bg: #0f172a;
+  --rf-surface: #020617;
+  --rf-card: #020617;
+  --rf-accent: #38bdf8;
+  --rf-accent-soft: rgba(56, 189, 248, 0.18);
+  --rf-text: #e2e8f0;
+  --rf-muted: #64748b;
+  --rf-danger: #f97373;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  background: radial-gradient(circle at top left, #1e293b 0, #020617 45%, #000 100%);
+  color: var(--rf-text);
+}
+
+.rf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.rf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rf-logo {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 16px;
+}
+
+.rf-badge-role {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--rf-accent-soft);
+  color: var(--rf-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.rf-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rf-user-infos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rf-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 0, #38bdf8, #0ea5e9 45%, #1e293b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 15px;
+}
+
+.rf-user-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.rf-user-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rf-user-sub {
+  font-size: 12px;
+  color: var(--rf-muted);
+}
+
+.rf-btn-ghost {
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  color: var(--rf-muted);
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rf-btn-ghost:hover {
+  border-color: var(--rf-accent);
+  color: var(--rf-accent);
+}
+
+.rf-main {
+  padding: 24px 32px 40px;
+}
+
+.rf-section {
+  margin-bottom: 24px;
+}
+
+.rf-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rf-section-sub {
+  margin: 0;
+  color: var(--rf-muted);
+  font-size: 13px;
+}
+
+.rf-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.rf-card {
+  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.07), rgba(15, 23, 42, 1));
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(30, 64, 175, 0.35);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+}
+
+.rf-card-kpi .rf-card-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rf-muted);
+  margin-bottom: 6px;
+}
+
+.rf-card-kpi .rf-card-value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.rf-card-kpi .rf-card-meta {
+  font-size: 12px;
+  color: var(--rf-muted);
+  margin-top: 4px;
+}
+
+.rf-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.rf-card-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.rf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.rf-table th,
+.rf-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(30, 64, 175, 0.3);
+}
+
+.rf-table th {
+  text-align: left;
+  color: var(--rf-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.rf-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.rf-pill-blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+}
+
+.rf-pill-green {
+  background: rgba(34, 197, 94, 0.08);
+  color: #4ade80;
+}
+
+.rf-pill-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--rf-danger);
+}
+
+@media (max-width: 768px) {
+  .rf-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .rf-main {
+    padding: 16px;
+  }
+}
+
