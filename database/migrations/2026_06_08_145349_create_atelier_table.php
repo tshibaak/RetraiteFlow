@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('atelier', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('logistique_id')->constrained('users')->onDelete('set null');
             $table->integer('capacity');
             $table->integer('age');
             $table->timestamps();

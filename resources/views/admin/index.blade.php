@@ -36,10 +36,13 @@
                         <i class="fas fa-user-cog"></i>
                         <span>Compte et paramètres</span>
                     </a>
-                    <a href="#" class="user-menu-item" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </a>
+                    <form action="{{route('auth.logout')}}" method="POST">
+                         @csrf
+                         <button  class="user-menu-item" type="submit">
+                             <i class="fas fa-sign-out-alt"></i>
+                             <span>Déconnexion</span>
+                         </button>
+                      </form>
                 </div>
             </div>
         </div>

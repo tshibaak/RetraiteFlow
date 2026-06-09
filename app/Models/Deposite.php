@@ -14,6 +14,9 @@ class Deposite extends Model
         'commission',
         'phone',
         'amount',
-        'delai'
+        'delai',
+        'user_id',
+        'validator_id',
+        'status'
     ];
 }

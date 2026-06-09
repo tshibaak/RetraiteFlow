@@ -154,7 +154,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="inscriptionForm">
+                <form id="inscriptionForm" method="POST" action="{{route('encadreur.store')}}">
+                    @csrf
                     <div class="form-grid">
                         <!-- Ligne 1: Nom complet -->
                         <div class="form-group full-width">
@@ -162,7 +163,7 @@
                                 <i class="fas fa-user"></i>
                                 Nom complet
                             </label>
-                            <input id="nom" name="nom" type="text" placeholder="Ex: KANDOLO Nicole" required />
+                            <input id="nom" name="name" type="text" placeholder="Ex: KANDOLO Nicole" required />
                         </div>
 
                         <!-- Ligne 2: Sexe et Âge -->
@@ -224,7 +225,7 @@
                             </label>
                             <div class="phone-input-container">
                                 <span class="phone-prefix">+243</span>
-                                <input type="tel" id="telephone" name="telephone" placeholder="XXXXXXXXX" maxlength="9"
+                                <input type="tel" id="telephone" name="phone" placeholder="XXXXXXXXX" maxlength="9"
                                     required>
                             </div>
                         </div>
@@ -235,7 +236,7 @@
                                 <i class="fas fa-money-bill-wave"></i>
                                 Paiement ($)
                             </label>
-                            <input id="montant" name="montant" type="number" min="0" max="25" step="0.5"
+                            <input id="montant" name="amount" type="number" min="0" max="25" step="0.5"
                                 placeholder="0.00" required />
                             <small id="montantHelp"
                                 style="display: none; color: var(--muted); font-size: 12px; margin-top: 4px;">
@@ -249,13 +250,13 @@
                                 <i class="fas fa-calendar-day"></i>
                                 Durée (jours)
                             </label>
-                            <input id="jours" name="jours" type="number" min="0" max="7" placeholder="0" required />
+                            <input id="jours" name="delai" type="date" min="0" max="7" placeholder="0" required />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" id="cancelBtn">
+                <button type="button" class="btn-secondary" id="cancelBtn">
                     <i class="fas fa-times"></i>
                     Annuler
                 </button>
@@ -273,8 +274,8 @@
         <i class="fas fa-question"></i>
     </div>
     <!-- lien vers le fichier JS   -->
-    <script src="../../script/shared/store.js"></script>
-    <script src="../../script/Page1/encadreur.js"></script>
+    <script src="../js/store.js"></script>
+    <script src="../js/encadreur.js"></script>
 </body>
 
 </html>

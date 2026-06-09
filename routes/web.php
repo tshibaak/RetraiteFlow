@@ -9,14 +9,7 @@ use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\EncadreurController;
 use App\Models\User;
 
-Route::get('/', function () {
-    // User::create([
-    //     'name' => 'don',
-    //     'email' => 'dondoe@gmail.com',
-    //     'password' => '12345678',
-    //     'role_id' => 1
-    //   ]
-    // );
+Route::middleware(['guest'])->get('/', function () {
     return view('index');
 })->name('login');
 
@@ -27,6 +20,7 @@ Route::prefix('auth')
     ->group(function(){
 
    Route::post('/login','login')->name('login');
+   Route::post('logout','logout')->name('logout');
 
 });
 
@@ -76,5 +70,5 @@ Route::prefix('encadreur')
     ->name('encadreur.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-      
+        Route::post('/store','store')->name('store');
 });

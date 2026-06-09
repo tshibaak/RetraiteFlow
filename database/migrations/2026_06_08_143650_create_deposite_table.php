@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deposite', function (Blueprint $table) {
+        Schema::create('deposites', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('sexe');
@@ -25,7 +25,7 @@ return new class extends Migration
           
             // pending , confirmed , unconfirmed
             $table->string('status')->default('pending');
-            $table->foreignId('validator_id')->constrained('users')->onDelete('set null');
+            $table->foreignId('validator_id')->nullable()->constrained('users')->onDelete('set null');
     
             $table->timestamps();
         });
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deposite');
+        Schema::dropIfExists('deposites');
     }
 };

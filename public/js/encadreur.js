@@ -196,7 +196,7 @@ function renderParticipants() {
             <tr>
                 <td colspan="6" style="text-align: center; padding: 40px; color: var(--muted);">
                     <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
-                    ${(searchInput?.value || '').trim() ? 'Aucun participant trouvé pour cette recherche' : 'Aucun participant enregistré pour l\\'instant'}
+                    ${(searchInput?.value || '').trim() ? 'Aucun participant trouvé pour cette recherche' : 'Aucun participant enregistré pour l\'instant'}
                 </td>
             </tr>
         `;
@@ -242,55 +242,17 @@ function renderParticipants() {
     }).join('');
 }
 
-// Soumission du formulaire
-form.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const groupe = formData.get("groupe");
-    const montant = groupe === "Cas Social" ? "0" : formData.get("montant");
-    const { username } = getUser();
-
-    const participant = {
-        id: editingIndex >= 0 ? participants[editingIndex]?.id : undefined,
-        nom: (formData.get("nom") || "").trim(),
-        sexe: formData.get("sexe"),
-        age: formData.get("age"),
-        groupe: groupe,
-        commission: formData.get("commission"),
-        telephone: formData.get("telephone"),
-        montant: montant,
-        jours: formData.get("jours"),
-        createdBy: username
-    };
-
-    const isEditing = editingIndex >= 0;
-
-    if (isEditing) {
-        participants[editingIndex] = participant;
-    } else {
-        participants.unshift(participant);
-    }
-
-    // Persister + auto-attribution (dortoir/atelier)
-    if (window.RetraiteFlowStore?.saveParticipantsWithAutoAssign) {
-        participants = window.RetraiteFlowStore.saveParticipantsWithAutoAssign(participants);
-    } else {
-        // fallback
-        localStorage.setItem('rf_participants_v1', JSON.stringify(participants));
-    }
-
-    // Refresh filtre
-    const currentSearch = (searchInput?.value || '').toLowerCase().trim();
-    if (!currentSearch) filteredParticipants = [...participants];
-    else filterParticipants();
-
-    renderParticipants();
-    updateStats();
-    closeModal();
-
-    showNotification(isEditing ? "Participant modifié avec succès !" : "Participant ajouté avec succès !", "success");
-});
+// Soumission du formulaire - gestion du montant pour cas social
+if (form) {
+    form.addEventListener("submit", (e) => {
+        // Si c'est un Cas Social, mettre le montant à 0
+        const groupe = document.getElementById('groupe').value;
+        if (groupe === "Cas Social") {
+            document.getElementById('amount').value = "0";
+        }
+        // Laisser le formulaire se soumettre normalement
+    });
+}
 
 // Exporter (CSV)
 function exportToExcel() {

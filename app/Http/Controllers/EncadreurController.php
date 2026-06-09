@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EncadreurSotreRequest;
+use App\Models\Deposite;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EncadreurController extends Controller
 {
@@ -11,6 +14,8 @@ class EncadreurController extends Controller
      */
     public function index()
     {
+        $participants = Deposite::paginate(10);
+       
         return view('encadreur.index');
     }
 
@@ -25,9 +30,23 @@ class EncadreurController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(EncadreurSotreRequest $request)
     {
-        //
+        try {
+            $validated = $request->validated();
+            
+            $validated['user_id'] = Auth::id();
+            $validated['status'] = 'pending';
+            
+            $deposite = Deposite::create($validated);
+            
+            return redirect()->route('encadreur.index')
+                ->with('success', 'Participant enregistré avec succès!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de l\'enregistrement: ' . $e->getMessage());
+        }
     }
 
     /**
