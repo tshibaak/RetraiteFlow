@@ -2,8 +2,8 @@
 
     $host = 'localhost';
     $dbname = 'retraiteflow';
-    $user = 'root';
-    $pass = '';
+    $user = 'adminuser';
+    $pass = 'Velonica9';
 
     try{
         $db = new PDO ("mysql:host=$host;dbname=$dbname;charset=utf8" , $user , $pass);
