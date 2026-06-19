@@ -372,9 +372,11 @@ CREATE TABLE IF NOT EXISTS depense_reelles (
 -- =====================================================
 
 ALTER TABLE participants
-    ADD COLUMN IF NOT EXISTS finance_status ENUM('en_attente', 'confirme', 'deconfirme') DEFAULT 'en_attente',
-    ADD COLUMN IF NOT EXISTS finance_validated_by INT,
-    ADD COLUMN IF NOT EXISTS finance_validated_at TIMESTAMP NULL;
+    ADD COLUMN finance_status ENUM('en_attente', 'confirme', 'deconfirme') DEFAULT 'en_attente';
+ALTER TABLE participants
+    ADD COLUMN finance_validated_by INT;
+ALTER TABLE participants
+    ADD COLUMN finance_validated_at TIMESTAMP NULL;
 
 -- =====================================================
 -- TABLE : logistique_dortoirs (Gestion des dortoirs)
