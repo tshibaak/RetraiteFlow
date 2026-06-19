@@ -3,7 +3,6 @@
 -- Parce que visiblement les humains adorent empiler
 -- des tables comme des boîtes de sardines.
 -- =====================================================
-DROP DATABASE IF EXISTS retraiteflow;
 
 CREATE DATABASE IF NOT EXISTS retraiteflow;
 USE retraiteflow;
