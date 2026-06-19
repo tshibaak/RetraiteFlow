@@ -38,7 +38,7 @@
 
 
 
-            <form action="<?= dirname(__DIR__,2) .'src/api/traitement_login.php'?>" method="POST" class="login-form" id="loginForm" name="loginForm">
+            <form action="<?= __DIR__ .'../../../src/api/traitement_login.php'?>" method="POST" class="login-form" id="loginForm" name="loginForm">
                 <h1>RetraiteFlow</h1>
                 <p class="login-subtitle">Connectez-vous à votre espace</p>
                 <!-- Champ utilisateur avec icône -->
