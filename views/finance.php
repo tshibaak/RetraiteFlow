@@ -1,7 +1,7 @@
 <?php
-    session_start();
-    require_once '../../../src/config/database.php';
-    require_once '../../../src/lib/funcstd.php';
+  use Router\Router;
+    require_once '../src/config/database.php';
+    require_once '../src/lib/funcstd.php';
 
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -105,7 +105,7 @@
                         <i class="fas fa-user-cog"></i>
                         <span>Compte et paramètres</span>
                     </a>
-                    <a href="/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logout.php" class="user-menu-item" id="logoutBtn">
+                    <a href="<?= Router::route('/logout') ?>" class="user-menu-item" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Déconnexion</span>
                     </a>

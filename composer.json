@@ -1,0 +1,44 @@
+{
+    "name": "hnc450/framework",
+    "type": "framework",
+    "description": "PHP framework project",
+    "authors": [
+        {
+            "name":"Henock",
+            "email":"henoctumonakiese@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "App\\Models\\": "app/models/",
+            "App\\Controllers\\" : "app/controllers/",
+            "App\\Factory\\": "app/factory/",
+            "Container\\" : "container/",
+            "Core\\":"core/",
+            "Helper\\String\\" : "helper/strings/",
+            "Helper\\Api\\":"helper/api/",
+            "Helper\\Array\\" : "helper/arrays/",
+            "Helper\\Build\\" : "helper/builds/",
+            "Helper\\Number\\":"helper/numbers/",
+            "Helper\\Log\\":"helper/log/",
+            "Service\\" :"services/",
+            "Router\\" :"router/"
+        }
+    ,
+        "files": [
+            "config/regex.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "altorouter/altorouter": "^2.0"
+    },
+    "require-dev": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
