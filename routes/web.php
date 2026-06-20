@@ -3,7 +3,7 @@
 use App\View;
 use Router\Router;
 
-Router::get('/login',function(){
+Router::get('/',function(){
     View::view('auth.login');
 });
 
