@@ -1,5 +1,5 @@
 <?php
-
+   use Router\Router;
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +18,7 @@
         <h1>Bienvenue sur RetreatFlow</h1>
         <h2>Créez votre profil</h2>
 
-        <form action="../../../src/api/traitement_inscription_encadreur.php" method="POST">
+        <form action="<?= Router::route('#')?>"" method="POST">
             <ol class="form-list">
                 <li class="form-group name-group">
                     <label>Nom complet</label>

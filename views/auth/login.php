@@ -41,7 +41,7 @@ use Router\Router;
 
 
 
-            <form action="<?='../../../src/api/traitement_login.php'?>" method="POST" class="login-form" id="loginForm" name="loginForm">
+            <form action="<?= Router::route('/login')?>" method="POST" class="login-form" id="loginForm" name="loginForm">
                 <h1>RetraiteFlow</h1>
                 <p class="login-subtitle">Connectez-vous à votre espace</p>
                 <!-- Champ utilisateur avec icône -->
