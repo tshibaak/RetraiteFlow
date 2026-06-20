@@ -25,10 +25,6 @@
             "Service\\" :"services/",
             "Router\\" :"router/"
         }
-    ,
-        "files": [
-            "config/regex.php"
-        ]
     },
     "autoload-dev": {
         "psr-4": {
