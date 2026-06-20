@@ -1,4 +1,7 @@
 <?php
+
+use Router\Router;
+
     session_start();
 ?>
 
@@ -97,7 +100,7 @@
                 <!-- Bouton de connexion -->
                 <input type="submit" id="login" name="login" value="Se connecter" class="btn-pill aesthetic">
                 <!-- Lien inscription -->
-                <div class="register aesthetic">Pas de compte ? <a href="inscription_encadreur.php">Créer un compte</a></div>
+                <div class="register aesthetic">Pas de compte ? <a href="<?= Router::route('/register') ?>">Créer un compte</a></div>
             </form>
         </div>
     </div>
