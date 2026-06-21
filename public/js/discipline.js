@@ -9,31 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchInput');
     const searchClear = document.getElementById('searchClear');
     const rapportDateInput = document.getElementById('rapportDate');
-    const userMenuBtn = document.getElementById("userMenuBtn");
-    const userMenuDropdown = document.getElementById("userMenuDropdown");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    // Menu utilisateur
-    if (userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('show');
-            userMenuBtn.classList.toggle('active');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.classList.remove('show');
-                userMenuBtn.classList.remove('active');
-            }
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = '/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logout.php';
-        });
-    }
 
     // Récupérer les lignes du tableau
     const rows = document.querySelectorAll('#disciplineTable tr');
@@ -134,7 +109,7 @@ function updateStats() {
     const today = document.getElementById('rapportDate')?.value || new Date().toISOString().slice(0, 10);
     
     // Appel au serveur pour obtenir les stats du jour
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_discipline.php', {
+    fetch('/api/discipline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=get_logs&date=${today}`
@@ -174,7 +149,7 @@ function exportCsv(filename, rows) {
 function exportEntrees() {
     const day = document.getElementById('rapportDate')?.value || new Date().toISOString().slice(0, 10);
     // Récupérer les logs du serveur
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_discipline.php', {
+    fetch('/api/discipline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=get_logs&date=${day}`
@@ -199,7 +174,7 @@ function exportEntrees() {
 
 function exportSorties() {
     const day = document.getElementById('rapportDate')?.value || new Date().toISOString().slice(0, 10);
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_discipline.php', {
+    fetch('/api/discipline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=get_logs&date=${day}`
@@ -224,7 +199,7 @@ function exportSorties() {
 
 function exportEntreesSorties() {
     const day = document.getElementById('rapportDate')?.value || new Date().toISOString().slice(0, 10);
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_discipline.php', {
+    fetch('/api/discipline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=get_logs&date=${day}`
@@ -249,7 +224,7 @@ function exportEntreesSorties() {
 
 function exportPresents() {
     const day = document.getElementById('rapportDate')?.value || new Date().toISOString().slice(0, 10);
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_discipline.php', {
+    fetch('/api/discipline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=get_logs&date=${day}`

@@ -1,32 +1,6 @@
 // Finance page - Gestion financière
 
 document.addEventListener('DOMContentLoaded', function () {
-    const userMenuBtn = document.getElementById("userMenuBtn");
-    const userMenuDropdown = document.getElementById("userMenuDropdown");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    // Menu utilisateur
-    if (userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('show');
-            userMenuBtn.classList.toggle('active');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.classList.remove('show');
-                userMenuBtn.classList.remove('active');
-            }
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = '/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logout.php';
-        });
-    }
-
     // Ajouter les événements aux formulaires
     document.getElementById('inputsForm')?.addEventListener('submit', addInput);
     document.getElementById('forecastForm')?.addEventListener('submit', addForecast);
@@ -52,7 +26,7 @@ function setParticipantStatus(id, status) {
     const label = status === 'confirme' ? 'confirmer' : 'déconfirmer';
     if (!confirm(`Voulez-vous ${label} ce participant ?`)) return;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+    fetch('/api/finance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=set_participant_status&id_participant=${encodeURIComponent(id)}&status=${encodeURIComponent(status)}`
@@ -74,7 +48,7 @@ function addInput(e) {
     const source = document.getElementById('inputSource').value;
     const amount = document.getElementById('inputAmount').value;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+    fetch('/api/finance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=add_input&source=${encodeURIComponent(source)}&amount=${amount}`
@@ -94,7 +68,7 @@ function addInput(e) {
 
 function deleteInput(id) {
     if(confirm('Confirmer la suppression?')) {
-        fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+        fetch('/api/finance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_input&id_input=${id}`
@@ -116,7 +90,7 @@ function addForecast(e) {
     const commission = document.getElementById('forecastCommission').value;
     const budget = document.getElementById('forecastAmount').value;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+    fetch('/api/finance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=add_forecast&commission=${encodeURIComponent(commission)}&budget=${budget}`
@@ -136,7 +110,7 @@ function addForecast(e) {
 
 function deleteForecast(id) {
     if(confirm('Confirmer la suppression?')) {
-        fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+        fetch('/api/finance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_forecast&id_forecast=${id}`
@@ -158,7 +132,7 @@ function addActual(e) {
     const commission = document.getElementById('actualCommission').value;
     const amount = document.getElementById('actualAmount').value;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+    fetch('/api/finance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=add_actual&commission=${encodeURIComponent(commission)}&amount=${amount}`
@@ -178,7 +152,7 @@ function addActual(e) {
 
 function deleteActual(id) {
     if(confirm('Confirmer la suppression?')) {
-        fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_finance.php', {
+        fetch('/api/finance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_actual&id_actual=${id}`

@@ -12,7 +12,7 @@
         return self::$controller;
     }
     
-    protected function sanitaze(string $input):string
+    public static function sanitaze(string $input):string
     {
        return strip_tags(htmlspecialchars($input));
     }

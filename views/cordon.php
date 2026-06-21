@@ -86,44 +86,19 @@ use Router\Router;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RetraiteFlow — Cordon / Super-admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style_encadreur.css">
+    <link rel="stylesheet" href="/css/style_encadreur.css">
 </head>
 
 <body>
-    <!-- Barre supérieure -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="user-menu-container">
-                <button class="user-menu-btn" id="userMenuBtn">
-                    <div class="user-avatar">
-                        <span id="userInitials">C</span>
-                    </div>
-                    <span class="user-name" id="userName"><?php echo htmlspecialchars($nom_enc); ?></span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="user-menu-dropdown" id="userMenuDropdown">
-                    <div class="user-info">
-                        <div class="user-info-avatar">
-                            <span id="userInfoInitials">C</span>
-                        </div>
-                        <div class="user-info-text">
-                            <div class="user-info-name" id="userInfoName"><?php echo htmlspecialchars($nom_enc); ?></div>
-                            <div class="user-info-role" id="userInfoRole">Cordon / Super-admin</div>
-                        </div>
-                    </div>
-                    <div class="user-menu-divider"></div>
-                    <a href="#" class="user-menu-item" id="accountSettings">
-                        <i class="fas fa-user-cog"></i>
-                        <span>Compte et paramètres</span>
-                    </a>
-                    <a href="<?= Router::route('/logout') ?>" class="user-menu-item" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php
+    $nav_user_name = $nom_enc;
+    $nav_role_label = 'Cordon / Super-admin';
+    $nav_home_url = Router::route('/cordon');
+    $nav_extra_links = [
+        ['url' => Router::route('/coordon/register'), 'icon' => 'fas fa-user-plus', 'label' => 'Ajouter un membre'],
+    ];
+    require dirname(__DIR__) . '/partials/top-bar.php';
+    ?>
 
     <main class="main-content">
         <!-- Header -->
@@ -132,7 +107,20 @@ use Router\Router;
             <p>Bienvenue, Cordon • Vue globale des participants, de la logistique et des finances</p>
         </header>
 
+        <?php if (isset($_SESSION['message_inscripttion'])): ?>
+            <div class="flash-message flash-success">
+                <?php
+                echo h($_SESSION['message_inscripttion']);
+                unset($_SESSION['message_inscripttion']);
+                ?>
+            </div>
+        <?php endif; ?>
+
         <div class="actions-bar">
+            <a href="<?= Router::route('/coordon/register') ?>" class="btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Ajouter un membre
+            </a>
             <button class="btn-secondary" type="button" id="exportCordonBtn">
                 <i class="fas fa-download"></i>
                 Exporter les synthèses
@@ -337,7 +325,8 @@ use Router\Router;
         </section>
     </main>
 
-    <script src="../js/cordon.js"></script>
+    <script src="/js/cordon.js"></script>
+    <script src="/js/script_encadreur.js" defer></script>
 </body>
 
 </html>

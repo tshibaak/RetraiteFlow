@@ -1,9 +1,6 @@
 // Logistique page - Gestion des dortoirs et ateliers
 
 document.addEventListener('DOMContentLoaded', function () {
-    const userMenuBtn = document.getElementById("userMenuBtn");
-    const userMenuDropdown = document.getElementById("userMenuDropdown");
-    const logoutBtn = document.getElementById("logoutBtn");
     const searchInput = document.getElementById('searchInput');
     const searchClear = document.getElementById('searchClear');
 
@@ -19,13 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 userMenuDropdown.classList.remove('show');
                 userMenuBtn.classList.remove('active');
             }
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = '/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logout.php';
         });
     }
 
@@ -86,7 +76,7 @@ function saveDortoir(e) {
     const ageMax = document.getElementById('dortoirAgeMax').value;
     const capacite = document.getElementById('dortoirCapacite').value;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logistique.php', {
+    fetch('/api/logistique', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=add_dortoir&nom=${encodeURIComponent(nom)}&sexe=${encodeURIComponent(sexe)}&age_min=${ageMin}&age_max=${ageMax}&capacite=${capacite}`
@@ -106,7 +96,7 @@ function saveDortoir(e) {
 
 function deleteDortoir(id) {
     if(confirm('Confirmer la suppression de ce dortoir?')) {
-        fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logistique.php', {
+        fetch('/api/logistique', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_dortoir&id_dortoir=${id}`
@@ -129,7 +119,7 @@ function saveAtelier(e) {
     const ageMax = document.getElementById('atelierAgeMax').value;
     const capacite = document.getElementById('atelierCapacite').value;
 
-    fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logistique.php', {
+    fetch('/api/logistique', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=add_atelier&nom=${encodeURIComponent(nom)}&age_min=${ageMin}&age_max=${ageMax}&capacite=${capacite}`
@@ -149,7 +139,7 @@ function saveAtelier(e) {
 
 function deleteAtelier(id) {
     if(confirm('Confirmer la suppression de cet atelier?')) {
-        fetch('/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logistique.php', {
+        fetch('/api/logistique', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_atelier&id_atelier=${id}`

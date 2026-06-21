@@ -1,32 +1,6 @@
 // Cordon / Super-admin page - Vue globale
 
 document.addEventListener('DOMContentLoaded', function () {
-    const userMenuBtn = document.getElementById("userMenuBtn");
-    const userMenuDropdown = document.getElementById("userMenuDropdown");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    // Menu utilisateur
-    if (userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('show');
-            userMenuBtn.classList.toggle('active');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.classList.remove('show');
-                userMenuBtn.classList.remove('active');
-            }
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = '/files/RetreatFlow/App_Ver_0_1/src/api/traitement_logout.php';
-        });
-    }
-
     document.getElementById('exportCordonBtn')?.addEventListener('click', exportCordonTables);
     renderCordonCharts();
 

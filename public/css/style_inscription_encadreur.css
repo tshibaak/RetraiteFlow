@@ -198,6 +198,11 @@ button[name="envoyer"]:hover {
   font-size: 0.95rem;
 }
 
+body.register-page {
+  display: block;
+  padding: 0;
+}
+
 @media (max-width: 760px) {
   .form-container {
     padding: 20px;

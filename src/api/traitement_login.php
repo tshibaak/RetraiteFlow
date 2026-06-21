@@ -1,5 +1,6 @@
 <?php
 
+use App\controllers\Controller;
 use Router\Router;
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -9,114 +10,71 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'funcstd.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);      
+function login_redirect_error(string $message): void
+{
+    $_SESSION['message'] = $message;
+    header('Location: ' . Router::route('/'));
+    exit();
+}
 
-    if($_SERVER['REQUEST_METHOD'] == "POST"){
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    f_erreur_405();
+}
 
+$adresse_email_login_enc = filter_input(INPUT_POST, 'username', FILTER_VALIDATE_EMAIL);
+$mdp_login_enc = $_POST['password'] ?? '';
+$role_login_enc = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_SPECIAL_CHARS);
 
-        // --- récuperation et vérrification des données  --- //
+if (!$adresse_email_login_enc || $mdp_login_enc === '' || !$role_login_enc) {
+    login_redirect_error('Veuillez remplir tous les champs correctement.');
+}
 
-        $adresse_email_login_enc = filter_input(INPUT_POST,'username',FILTER_VALIDATE_EMAIL);
-        $mdp_login_enc = $_POST['password'];
-        $role_login_enc = filter_input(INPUT_POST,'role',FILTER_SANITIZE_SPECIAL_CHARS);
+try {
+    $stmt = $db->prepare('SELECT id_enc, nom_enc, prenom_enc, mail_enc, role, mdp_enc FROM table_encadreur WHERE mail_enc = :mail_enc LIMIT 1');
+    $stmt->execute([':mail_enc' => $adresse_email_login_enc]);
+    $encadreur = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        verification_parametre($adresse_email_login_enc );
-        verification_parametre($mdp_login_enc);
-        verification_parametre($role_login_enc);
-
-        try{
-
-            // --- verification que le compte existe pour se connecter --- //
-
-            $requette_verification = " select count(*) from table_encadreur where mail_enc = :mail_enc and mdp_enc = :mdp_enc ";
-            $execution_req_verification = $db->prepare($requette_verification);
-            $execution_req_verification->execute([
-                ":mail_enc" => $adresse_email_login_enc,
-                ":mdp_enc" => $mdp_login_enc
-            ]);
-
-            $count_verif = $execution_req_verification->fetchColumn();
-            if($count_verif > 0){
-
-                // --- requette pour recupérer NOM , PRENOM , MAIL et ROLE --- //
-
-                $requette_recup_1 = "
-                    select id_enc , nom_enc , prenom_enc , mail_enc , role , mdp_enc
-                    from table_encadreur
-                    where mail_enc = :mail_enc
-                    AND (
-                        role = :role_login
-                        OR (:role_login = 'cordon' AND role = 'coordination')
-                    )
-                ";
-                $execution_req_recup_1 = $db->prepare($requette_recup_1);
-                $execution_req_recup_1->execute([
-                    ":mail_enc" => $adresse_email_login_enc,
-                    ":role_login" => $role_login_enc
-                ]);
-
-                $encadreur = $execution_req_recup_1->fetch();
-
-                if($encadreur){
-
-                    if(strcmp($mdp_login_enc, $encadreur['mdp_enc']) == 0){
-
-                        $id = $encadreur['id_enc'];
-                        $nom = $encadreur['nom_enc'];
-                        $prenom = $encadreur['prenom_enc'];
-                        $mail = $encadreur['mail_enc'];
-                        $role = $role_login_enc === 'cordon' ? 'cordon' : $encadreur['role'];
-
-                        $_SESSION['id_enc'] = $id;
-                        $_SESSION['nom_enc'] = $nom;
-                        $_SESSION['prenom_enc'] = $prenom ;
-                        $_SESSION['mail_enc'] = $mail;
-                        $_SESSION['role'] = $role;
-
-                        app_log($db, 'authentification', 'connexion', 'Connexion au compte ' . $role);
-
-                        if($role == 'encadreur'){
-                            header("Location:".Router::route('/encadreur'));
-                            exit();
-                        }elseif($role == "finance"){
-                            header("Location: ".Router::route('/finance'));
-                            exit();
-                        }elseif($role == "logistique"){
-                            header("Location: ".Router::route('/logistique'));
-                            exit();
-                        }elseif($role == "discipline"){
-                            header("Location: ".Router::route('/discipline'));
-                            exit();
-                        }elseif($role =="coordination" || $role == "cordon"){
-                            header("Location:".Router::route('/cordon'));
-                            exit();
-                        }else{
-                            $_SESSION['message'] = "Rôle non reconnu";
-                            header("Location: ".Router::route('/'));
-                            exit();}
-
-                    }else{
-                        $_SESSION['message'] = "Mot de passe incorrect";
-                        header("Location: " . Router::route('/'));
-                        exit();
-                    }
-
-                }
-
-            }else{
-                $_SESSION['message'] = "utilisateur non éxistant";
-                header("Location: " . Router::route('/'));
-                exit();                
-            }
-
-        }catch(PDOException $e){
-            die("Erreur lors de la lecture des données : " .$e->getMessage());
-        }
-
-
-
-    }else{
-        f_erreur_405();
+    if (!$encadreur) {
+        login_redirect_error('Utilisateur inexistant.');
     }
+
+    if (strcmp($mdp_login_enc, $encadreur['mdp_enc']) !== 0) {
+        login_redirect_error('Mot de passe incorrect.');
+    }
+
+    $db_role = $encadreur['role'];
+    $role_ok = ($db_role === $role_login_enc)
+        || ($role_login_enc === 'cordon' && $db_role === 'coordination');
+
+    if (!$role_ok) {
+        login_redirect_error('Rôle incorrect pour ce compte.');
+    }
+
+    $role = $role_login_enc === 'cordon' ? 'cordon' : $db_role;
+
+    $_SESSION['id_enc'] = $encadreur['id_enc'];
+    $_SESSION['nom_enc'] = $encadreur['nom_enc'];
+    $_SESSION['prenom_enc'] = $encadreur['prenom_enc'];
+    $_SESSION['mail_enc'] = $encadreur['mail_enc'];
+    $_SESSION['role'] = $role;
+
+    app_log($db, 'authentification', 'connexion', 'Connexion au compte ' . $role);
+
+    $redirects = [
+        'encadreur' => '/encadreur',
+        'finance' => '/finance',
+        'logistique' => '/logistique',
+        'discipline' => '/discipline',
+        'coordination' => '/cordon',
+        'cordon' => '/cordon',
+    ];
+
+    if (!isset($redirects[$role])) {
+        login_redirect_error('Rôle non reconnu.');
+    }
+
+    header('Location: ' . Router::route($redirects[$role]));
+    exit();
+} catch (PDOException $e) {
+    die('Erreur lors de la lecture des données : ' . $e->getMessage());
+}

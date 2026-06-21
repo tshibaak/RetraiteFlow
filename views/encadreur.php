@@ -45,6 +45,7 @@ error_reporting(E_ALL);
     ]); 
     $participants = $execution_liste->fetchAll(PDO::FETCH_ASSOC);
     $activity_logs = fetch_activity_logs($db, 'self', $id_enc, 50);
+    $nom_enc = current_user_name();
 
 ?>
 
@@ -56,58 +57,17 @@ error_reporting(E_ALL);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RetraiteFlow — Encadreur</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style_encadreur.css">
+    <link rel="stylesheet" href="/css/style_encadreur.css">
 </head>
 
 <body>
-    <!-- Barre supérieure avec menu utilisateur -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="user-menu-container">
-                <button class="user-menu-btn" id="userMenuBtn">
-                    <div class="user-avatar">
-                        <span id="userInitials">U</span>
-                    </div>
-                    <span class="user-name" id="userName">
-                        tilisateur
-                    </span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="user-menu-dropdown" id="userMenuDropdown">
-                    <div class="user-info">
-                        <div class="user-info-avatar">
-                            <span id="userInfoInitials">U</span>
-                        </div>
-                        <div class="user-info-text">
-                            <div class="user-info-name" id="userInfoName">
-                                <?php if(isset($_SESSION['nom_enc']) && isset($_SESSION['prenom_enc'])): ?>
-                                    <?php
-                                        echo "".$_SESSION['nom_enc'] . " ". $_SESSION['prenom_enc'];
-                                    ?>
-                                <?php endif; ?>
-                            </div>
-                            <div class="user-info-role" id="userInfoRole">
-                                <?php if(isset($_SESSION['role'])): ?>
-                                    <?php
-                                        echo $_SESSION['role'];
-                                    ?>
-                                <?php  endif;  ?> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="user-menu-divider"></div>
-                    <a href="#" class="user-menu-item" id="accountSettings">
-                        <i class="fas fa-user-cog"></i>
-                        <span>Compte et paramètres</span>
-                    </a>
-                    <a href="<?= Router::route('/logout') ?>" class="user-menu-item" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php
+    $nav_user_name = $nom_enc;
+    $nav_role_label = 'Encadreur';
+    $nav_home_url = Router::route('/encadreur');
+    $nav_extra_links = [];
+    require dirname(__DIR__) . '/partials/top-bar.php';
+    ?>
 
     <main class="main-content">
         <!-- Header avec image de fond -->
@@ -446,8 +406,8 @@ error_reporting(E_ALL);
         <i class="fas fa-question"></i>
     </div>
     <!-- lien vers le fichier JS   -->
-    <script src="../js/store.js"></script>
-    <script src="../js/script_encadreur.js"></script>
+    <script src="/js/store.js"></script>
+    <script src="/js/script_encadreur.js"></script>
 </body>
 
 </html>

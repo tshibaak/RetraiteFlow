@@ -3,44 +3,67 @@
 use App\View;
 use Router\Router;
 
-Router::get('/',function(){
+Router::get('/', function () {
     View::view('auth.login');
 });
 
-Router::post('/login',function(){
-  require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_login.php';
+Router::post('/login', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_login.php';
 });
 
-Router::get('/register',function(){
+Router::get('/coordon/register', function () {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (!isset($_SESSION['id_enc']) || !in_array($_SESSION['role'] ?? '', ['coordination', 'cordon'], true)) {
+        header('Location: ' . Router::route('/'));
+        exit();
+    }
     View::view('auth.register');
 });
 
-Router::post('/register',function(){
+Router::post('/coordon/register', function () {
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_inscription_encadreur.php';
 });
 
-Router::get('/logout',function(){
-   require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logout.php';
+Router::get('/logout', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logout.php';
 });
 
-Router::get('/cordon',function(){
-   View::view('cordon');
+Router::get('/cordon', function () {
+    View::view('cordon');
 });
 
-Router::get('/discipline',function(){
-   View::view('discipline');
+Router::get('/discipline', function () {
+    View::view('discipline');
 });
 
-Router::get('/encadreur',function(){
-   View::view('encadreur');
+Router::get('/encadreur', function () {
+    View::view('encadreur');
 });
 
-Router::post('/encadreur',function(){
-   require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_gest_encadreur.php';
+Router::post('/encadreur', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_gest_encadreur.php';
 });
 
-Router::get('/logistique',function(){
-   View::view('logistique');
+Router::get('/finance', function () {
+    View::view('finance');
+});
+
+Router::get('/logistique', function () {
+    View::view('logistique');
+});
+
+Router::post('/api/finance', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_finance.php';
+});
+
+Router::post('/api/discipline', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_discipline.php';
+});
+
+Router::post('/api/logistique', function () {
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logistique.php';
 });
 
 ?>
