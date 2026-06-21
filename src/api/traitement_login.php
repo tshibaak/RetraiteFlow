@@ -1,5 +1,7 @@
 <?php
 
+use Router\Router;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -76,23 +78,23 @@ error_reporting(E_ALL);
                         app_log($db, 'authentification', 'connexion', 'Connexion au compte ' . $role);
 
                         if($role == 'encadreur'){
-                            header("Location: ../../public/assets/pages/encadreur.php");
+                            header("Location:".Router::route('/encadreur'));
                             exit();
                         }elseif($role == "finance"){
-                            header("Location: ../../public/assets/pages/finance.php");
+                            header("Location: ".Router::route('/finance'));
                             exit();
                         }elseif($role == "logistique"){
-                            header("Location: ../../public/assets/pages/logistique.php");
+                            header("Location: ".Router::route('/logistique'));
                             exit();
                         }elseif($role == "discipline"){
-                            header("Location: ../../public/assets/pages/discipline.php");
+                            header("Location: ".Router::route('/discipline'));
                             exit();
                         }elseif($role =="coordination" || $role == "cordon"){
-                            header("Location: ../../public/assets/pages/cordon.php");
+                            header("Location:".Router::route('/cordon'));
                             exit();
                         }else{
                             $_SESSION['message'] = "Rôle non reconnu";
-                            header("Location: ../../public/assets/pages/login.php");
+                            header("Location: ".Router::route('/'));
                             exit();}
 
                     }else{
