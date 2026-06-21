@@ -1,7 +1,11 @@
 <?php
 
-    require_once '../config/database.php';
-    require dirname(__DIR__).DIRECTORY_SEPARATOR.'lib/funcstd.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'funcstd.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
