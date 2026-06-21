@@ -4,6 +4,7 @@
 -- des tables comme des boîtes de sardines.
 -- =====================================================
 
+DROP IF DATABASE EXISTS retraiteflow;
 CREATE DATABASE IF NOT EXISTS retraiteflow;
 USE retraiteflow;
 

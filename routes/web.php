@@ -15,6 +15,10 @@ Router::get('/register',function(){
     View::view('auth.register');
 });
 
+Router::post('/register',function(){
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_inscription_encadreur.php';
+});
+
 Router::get('/logout',function(){
    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logout.php';
 });
