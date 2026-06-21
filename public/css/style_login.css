@@ -289,9 +289,13 @@ body {
 
 /* Responsive Design */
 @media screen and (max-width: 480px) {
-  .login-container {
-    padding: 24px 16px;
-    margin: 10px;
+  body {
+    padding: 16px;
+  }
+
+  .form-container {
+    padding: 20px 16px;
+    margin: 12px auto;
   }
 
   .login-form h1 {
@@ -304,7 +308,8 @@ body {
     margin-bottom: 16px;
   }
 
-  .input-icon.aesthetic input {
+  .input-icon.aesthetic input,
+  .input-icon.aesthetic select {
     font-size: 1rem;
     padding: 12px 0;
   }
@@ -317,6 +322,29 @@ body {
   .forgot-link.aesthetic,
   .register.aesthetic {
     font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .form-container {
+    padding: 18px 14px;
+  }
+
+  .login-form h1 {
+    font-size: 1.55rem;
+  }
+
+  .input-icon.aesthetic {
+    padding: 0 10px;
+  }
+
+  .input-icon.aesthetic input,
+  .input-icon.aesthetic select {
+    font-size: 0.95rem;
+  }
+
+  .btn-pill.aesthetic {
+    padding: 10px;
   }
 }
 
