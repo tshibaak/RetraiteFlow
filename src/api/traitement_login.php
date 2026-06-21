@@ -30,7 +30,7 @@ if (!$adresse_email_login_enc || $mdp_login_enc === '' || !$role_login_enc) {
 }
 
 try {
-    $stmt = $db->prepare('SELECT id_enc, nom_enc, prenom_enc, mail_enc, role, mdp_enc FROM table_encadreur WHERE mail_enc = :mail_enc LIMIT 1');
+    $stmt = $db->prepare('SELECT * FROM table_encadreur WHERE mail_enc = :mail_enc LIMIT 1');
     $stmt->execute([':mail_enc' => $adresse_email_login_enc]);
     $encadreur = $stmt->fetch(PDO::FETCH_ASSOC);
 

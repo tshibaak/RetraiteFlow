@@ -42,7 +42,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
             <?php endif; ?>
 
-            <form action="<?= Router::route('/login') ?>" method="POST" class="login-form" id="loginForm" name="loginForm">
+            <form action="<?= Router::route('/login') ?>" method="POST" class="login-form" name="loginForm">
                 <h1>RetraiteFlow</h1>
                 <p class="login-subtitle">Connectez-vous à votre espace</p>
                 <div class="input-icon aesthetic">
