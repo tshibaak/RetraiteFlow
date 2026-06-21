@@ -38,7 +38,7 @@ try {
         login_redirect_error('Utilisateur inexistant.');
     }
 
-    if (strcmp($mdp_login_enc, $encadreur['mdp_enc']) !== 0) {
+    if ($mdp_login_enc !== $encadreur['mdp_enc']) {
         login_redirect_error('Mot de passe incorrect.');
     }
 
