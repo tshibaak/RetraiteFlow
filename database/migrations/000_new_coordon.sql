@@ -9,12 +9,12 @@ INSERT INTO table_encadreur (
     role,
     adresse
 ) VALUES (
-    'Zaimon',
+    'Jeremie Mbombo',
     'Admin',
-    ' @zaimon2002',
-    'zaimon0123456789@gmail.com',
+    ' 30061960',
+    'jeremiembombo10@gmail.com',
     '+243000000000',
-    '2002-01-01',
+    '2003-01-01',
     'M',
     'coordination',
     'Kinshasa'
