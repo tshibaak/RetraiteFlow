@@ -1,5 +1,11 @@
 <?php
 
+use Router\Router;
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
     // Détruire la session
     $_SESSION = array();
 
@@ -15,6 +21,6 @@
     session_destroy();
 
     // Rediriger vers la page de connexion
-    header("Location: ../../public/assets/pages/login.php");
+    header("Location: " . Router::route('/'));
     exit();
 ?>

@@ -242,7 +242,7 @@ error_reporting(E_ALL);
                                         >
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <form action="/files/RetreatFlow/App_Ver_0_1/src/api/traitement_gest_encadreur.php" method="post" onsubmit="return confirm('Supprimer ce participant ?');">
+                                        <form action="<?= Router::route('/encadreur') ?>" method="post" onsubmit="return confirm('Supprimer ce participant ?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="participant_id" value="<?php echo (int)$p['id_part']; ?>">
                                             <button type="submit" class="btn-action btn-delete" title="Supprimer">
@@ -323,7 +323,7 @@ error_reporting(E_ALL);
                             ?>
                         </div>
                     <?php endif;   ?>
-                    <form action="/files/RetreatFlow/App_Ver_0_1/src/api/traitement_gest_encadreur.php" method="post" id="inscriptionForm">
+                    <form action="<?= Router::route('/encadreur') ?>" method="post" id="inscriptionForm">
                         <input type="hidden" name="action" id="formAction" value="save">
                         <input type="hidden" name="participant_id" id="participantId" value="">
                         <div class="form-grid">

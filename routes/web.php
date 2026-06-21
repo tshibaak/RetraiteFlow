@@ -35,8 +35,8 @@ Router::get('/encadreur',function(){
    View::view('encadreur');
 });
 
-Router::get('/finance',function(){
-   View::view('finance');
+Router::post('/encadreur',function(){
+   require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_gest_encadreur.php';
 });
 
 Router::get('/logistique',function(){

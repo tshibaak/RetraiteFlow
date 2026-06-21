@@ -99,7 +99,7 @@ error_reporting(E_ALL);
 
                     }else{
                         $_SESSION['message'] = "Mot de passe incorrect";
-                        header("Location: ../../public/assets/pages/login.php");
+                        header("Location: " . Router::route('/'));
                         exit();
                     }
 
@@ -107,7 +107,7 @@ error_reporting(E_ALL);
 
             }else{
                 $_SESSION['message'] = "utilisateur non éxistant";
-                header("Location: ../../public/assets/pages/login.php");
+                header("Location: " . Router::route('/'));
                 exit();                
             }
 

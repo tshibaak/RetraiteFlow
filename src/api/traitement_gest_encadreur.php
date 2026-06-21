@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+use Router\Router;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'funcstd.php';
 
@@ -85,7 +87,7 @@ ini_set('display_errors', 1);
             app_log($db, 'encadreur', 'suppression', 'Suppression du participant ' . $participant['nom_part'], 'participants', $participant_id);
 
             $_SESSION['confirmation_ok'] = "participant supprimé !";
-            header("Location: ../../public/assets/pages/encadreur.php");
+header("Location: " . Router::route('/encadreur'));
             exit();
         }
 
@@ -180,7 +182,7 @@ ini_set('display_errors', 1);
             $_SESSION['confirmation_ok'] = "inscription réussie !";
         }
 
-        header("Location: ../../public/assets/pages/encadreur.php");
+        header("Location: " . Router::route('/encadreur'));
         exit();
     }catch(PDOException $e){
         die("Erreur lors de l'enregistrement : " . $e->getMessage());

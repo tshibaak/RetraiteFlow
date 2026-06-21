@@ -1,21 +1,23 @@
 <?php
 
+use Router\Router;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-    //header("Content-Type: application/json; charset=UTF-8");
-    //header("Access-Control-Allow-Origin: *");
+//header("Content-Type: application/json; charset=UTF-8");
+//header("Access-Control-Allow-Origin: *");
 
-    // --- permet de capturer et afficher les erreurs php invisibles --- //
-    ini_set('display_errors', 1);
+// --- permet de capturer et afficher les erreurs php invisibles --- //
+ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
     
-    require_once '../config/database.php';
-    require '../lib/funcstd.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'funcstd.php';
 
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
+if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         $message_niv = [
             "nom","prenom","email","mdp","tel","jour","moi","annee","DN","adresse","sexe","role"
@@ -119,11 +121,11 @@ if (session_status() === PHP_SESSION_NONE) {
             $count_verif = $execution_req_verif->fetchColumn();
             if( $count_verif > 0 ){
                 $_SESSION['message_inscripttion'] = "inscription reussi !";
-                header("Location: ../../public/assets/pages/login.php");
+                header("Location: " . Router::route('/'));
                 exit();
             }else{
                 $_SESSION['message_inscripttion'] = "inscription échouer !";
-                header("Location: ../../public/assets/pages/login.php");
+                header("Location: " . Router::route('/'));
                 exit();
             }
 
