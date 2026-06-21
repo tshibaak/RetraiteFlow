@@ -1,7 +1,7 @@
 <?php
 
     require_once '../config/database.php';
-    require '../lib/funcstd.php';
+    require dirname(__DIR__).DIRECTORY_SEPARATOR.'lib/funcstd.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
