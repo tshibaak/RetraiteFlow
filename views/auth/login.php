@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RetraiteFlow - Connexion</title>
-    <link rel="stylesheet" href="/css/style_login.css">
+    <link rel="stylesheet" href="/css/login.css">
     <script src="/js/script_login.js" defer></script>
 </head>
 

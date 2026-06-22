@@ -244,3 +244,58 @@
   background-color: #fce7f3;
   color: #ec4899;
 }
+
+/* ===================== Responsive ===================== */
+@media (max-width: 768px) {
+  .rf-grid-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .modal {
+    width: 94%;
+    max-height: 92vh;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .btn-primary,
+  .modal-footer .btn-secondary,
+  .modal-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .rf-grid-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .rf-card {
+    padding: 16px;
+  }
+
+  .rf-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .rf-card-footer .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
