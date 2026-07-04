@@ -84,7 +84,7 @@
     $nav_role_label = 'Finance';
     $nav_home_url = Router::route('/finance');
     $nav_extra_links = [];
-    require dirname(__DIR__) . '/partials/top-bar.php';
+    require __DIR__ . '/partials/top-bar.php';
     ?>
 
     <main class="main-content">
