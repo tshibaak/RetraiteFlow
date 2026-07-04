@@ -66,7 +66,7 @@ error_reporting(E_ALL);
     $nav_role_label = 'Encadreur';
     $nav_home_url = Router::route('/encadreur');
     $nav_extra_links = [];
-    require dirname(__DIR__) . '/partials/top-bar.php';
+    require __DIR__ . '/partials/nav.php';
     ?>
 
     <main class="main-content">
