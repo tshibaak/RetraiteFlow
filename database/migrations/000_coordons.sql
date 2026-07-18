@@ -1,31 +1,10 @@
-INSERT INTO table_encadreur (
-    nom_enc,
-    prenom_enc,
-    mdp_enc,
-    mail_enc,
-    tel_enc,
-    date_naissance_enc,
-    sex_enc,
-    role,
-    adresse
-) VALUES (
-    'Jeremie Mbombo',
-    'Admin',
-    ' 30061960',
-    'jeremiembombo10@gmail.com',
-    '+243000000000',
-    '2003-01-01',
-    'M',
-    'coordination',
-    'Kinshasa'
-);
-
+USE retraiteflow;
+TRUNCATE TABLE tables_encadreur;
 -- =====================================================
--- 4 comptes supplementaires
 -- Mot de passe en clair : password123
 -- Hash genere avec password_hash('password123', PASSWORD_DEFAULT) (PHP / bcrypt)
 -- =====================================================
-INSERT INTO table_encadreur (
+INSERT INTO users(
     nom_enc,
     prenom_enc,
     mdp_enc,

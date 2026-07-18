@@ -1,133 +1,57 @@
--- =====================================================
--- CREATION DE LA BASE DE DONNEES
--- Parce que visiblement les humains adorent empiler
--- des tables comme des boîtes de sardines.
--- =====================================================
-
 DROP IF DATABASE EXISTS retraiteflow;
 CREATE DATABASE IF NOT EXISTS retraiteflow;
 USE retraiteflow;
-
--- =====================================================
--- TABLE : table_encadreur
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS table_encadreur (
-    
-    id_enc INT AUTO_INCREMENT PRIMARY KEY,
-
-    nom_enc VARCHAR(100) NOT NULL,
-    prenom_enc VARCHAR(100) NOT NULL,
-
-    mdp_enc VARCHAR(255) NOT NULL,
-    mail_enc VARCHAR(150) UNIQUE NOT NULL,
-    tel_enc VARCHAR(20),
-
-    date_naissance_enc DATE NOT NULL,
-
-    sex_enc ENUM('M', 'F') NOT NULL,
-
-    role ENUM(
-        'encadreur',
-        'coordination',
-        'cordon',
-        'discipline',
-        'finance',
-        'logistique'
-    ) NOT NULL,
-
-    adresse TEXT NOT NULL
-
+CREATE TABLE IF NOT EXISTS roles (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
--- =====================================================
--- TABLE : gestionnaire_encadreur
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS gestionnaire_encadreur (
-
-    id INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    nom_part VARCHAR(100) NOT NULL,
-    sex_part ENUM('M', 'F') NOT NULL,
-    Age_part INT NOT NULL,
-
-    groupe_part ENUM(
-        'solvable',
-        'cas social',
-        'accrédité'
-    ) NOT NULL,
-
-    commission_part VARCHAR(100) NOT NULL,
-    tel_part VARCHAR(20) NOT NULL,
-    paiment_part DECIMAL(10,2) DEFAULT 0.00,
-    duree_part INT DEFAULT 0,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-
+CREATE TABLE IF NOT EXISTS categories(
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) UNIQUE NOT NULL,
+    `created_at` TIMESTAMP DEFAULT NOW()
 );
 
--- =====================================================
--- EXEMPLE D'INSERTION
--- Histoire de nourrir la base avec autre chose
--- que le vide cosmique.
--- =====================================================
+CREATE TABLE  IF NOT EXISTS users(
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `role_id` INT ,
+    `name` VARCHAR(255),
+    `email` VARCHAR(255) UNIQUE,
+    `password` VARCHAR(255),
+    `phone` VARCHAR(70),
+    `address` TEXT DEFAULT NULL,
+    `sexe` ENUM('M', 'F') NOT NULL,
+);
 
--- =====================================================
--- TABLE : participants (Gestion des participants par encadreur)
--- =====================================================
+CREATE Table IF NOT EXISTS commissions(
+    `id`  INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS groupes(
+     `id` INT AUTO_INCREMENT PRIMARY KEY,
+     `name` VARCHAR(30) UNIQUE  NOT NULL,
+);
+
 
 CREATE TABLE IF NOT EXISTS participants (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
+    `sexe` ENUM('Masculin', 'Féminin') NOT NULL,
+    `age` INT NOT NULL,
+    `phone` VARCHAR(50),
+    `groupe_id` INT NOT NULL,
+    `commission_id` INT NOT NULL,
+    `atelier_id` INT,
+    `dortoir_id` INT, 
+    `days` INT DEFAULT 0,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    id_part INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    nom_part VARCHAR(100) NOT NULL,
-    sexe_part ENUM('Masculin', 'Féminin') NOT NULL,
-    age_part INT NOT NULL,
-    
-    groupe_part ENUM(
-        'solvable',
-        'cas_social',
-        'cas social',
-        'accrédité'
-    ) NOT NULL,
-
-    commission_part VARCHAR(100),
-
-    telephone_part VARCHAR(20),
-
-    montant_part DECIMAL(10,2) DEFAULT 0.00,
-
-    jours_part INT DEFAULT 0,
-
-    finance_status ENUM('en_attente', 'confirme', 'deconfirme') DEFAULT 'en_attente',
-    finance_validated_by INT,
-    finance_validated_at TIMESTAMP NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    dortoir_id INT,
-    atelier_id INT,
-
-    INDEX idx_participants_encadreur (id_encadreur),
-    INDEX idx_participants_dortoir (dortoir_id),
-    INDEX idx_participants_atelier (atelier_id),
-    INDEX idx_participants_groupe (groupe_part),
-    INDEX idx_participants_finance_status (finance_status),
-
-    CONSTRAINT fk_participants_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
@@ -135,63 +59,51 @@ CREATE TABLE IF NOT EXISTS participants (
         FOREIGN KEY (finance_validated_by)
         REFERENCES table_encadreur(id_enc)
         ON DELETE SET NULL
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_commission FOREIGN KEY (commission_id)
+     REFERENCES commissions(`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_atelier FOREIGN KEY (atelier_id)
+     REFERENCES locaux(`id`)
+             ON DELETE SET NULL
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_dortoir FOREIGN KEY (dortoir_id)
+     REFERENCES locaux(`id`)
+             ON DELETE SET NULL
+        ON UPDATE CASCADE,
 
 );
 
--- =====================================================
--- TABLE : app_logs (Historique des actions)
--- =====================================================
+CREATE TABLE IF NOT EXISTS paiements(
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `participant_id` INT NOT NULL,
+    `amount` DECIMAL(10,2) DEFAULT 0.00,
+    `mode` TEXT,
+    `statut`  ENUM('pending', 'confirmed', 'rejected') DEFAULT 'pending',
+    `validator_id` INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-CREATE TABLE IF NOT EXISTS app_logs (
-
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
-
-    actor_id INT NOT NULL,
-    actor_role VARCHAR(50) NOT NULL,
-    actor_name VARCHAR(220) NOT NULL,
-
-    module VARCHAR(60) NOT NULL,
-    action_type VARCHAR(60) NOT NULL,
-    description TEXT NOT NULL,
-
-    target_table VARCHAR(80),
-    target_id INT,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_app_logs_actor (actor_id, created_at),
-    INDEX idx_app_logs_role (actor_role, created_at),
-    INDEX idx_app_logs_module (module, created_at),
-
-    CONSTRAINT fk_app_logs_actor
-        FOREIGN KEY (actor_id)
-        REFERENCES table_encadreur(id_enc)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+    CONSTRAINT fk_participant FOREIGN KEY (participant_id)
+     REFERENCES participants(`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
 
 );
 
--- =====================================================
--- TABLE : discipline_logs (Suivi entrées/sorties)
--- =====================================================
+CREATE TABLE IF NOT EXISTS `logs` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `action` VARCHAR(60) NOT NULL,
+    `detail` TEXT NOT NULL,
+    `ip` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-CREATE TABLE IF NOT EXISTS discipline_logs (
-
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_participant INT NOT NULL,
-
-    type_log ENUM('entree', 'sortie') NOT NULL,
-
-    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    logged_by INT,
-
-    CONSTRAINT fk_discipline_logs_participant
-        FOREIGN KEY (id_participant)
-        REFERENCES participants(id_part)
-        ON DELETE CASCADE
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(`id`) 
+        ON DELETE CASCADE 
         ON UPDATE CASCADE
 
 );
@@ -201,15 +113,10 @@ CREATE TABLE IF NOT EXISTS discipline_logs (
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS finance_inputs (
-
     id_input INT AUTO_INCREMENT PRIMARY KEY,
-
     id_encadreur INT NOT NULL,
-
     source_input VARCHAR(150) NOT NULL,
-
     amount_input DECIMAL(10,2) NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_finance_inputs_encadreur_created (id_encadreur, created_at),
@@ -230,15 +137,11 @@ CREATE TABLE IF NOT EXISTS finance_inputs (
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS finance_revenues (
-
-    id_revenue INT AUTO_INCREMENT PRIMARY KEY,
-
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
     id_financier INT NOT NULL,
     id_encadreur_source INT NOT NULL,
-
     amount_revenue DECIMAL(10,2) NOT NULL,
     note_revenue VARCHAR(255),
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_finance_revenues_financier_created (id_financier, created_at),
@@ -258,48 +161,14 @@ CREATE TABLE IF NOT EXISTS finance_revenues (
         REFERENCES table_encadreur(id_enc)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-
-);
-
--- =====================================================
--- TABLE : finance_forecasts (Prévisions de dépenses)
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS finance_forecasts (
-
-    id_forecast INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    commission_forecast VARCHAR(150) NOT NULL,
-
-    budget_forecast DECIMAL(10,2) NOT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_finance_forecasts_encadreur_created (id_encadreur, created_at),
-    INDEX idx_finance_forecasts_commission (commission_forecast),
-
-    CONSTRAINT chk_finance_forecasts_budget
-        CHECK (budget_forecast > 0),
-
-    CONSTRAINT fk_finance_forecasts_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-
 );
 
 -- Même besoin métier, avec les noms de tables demandés côté BDD.
 CREATE TABLE IF NOT EXISTS prevision_depense (
-
-    id_prevision INT AUTO_INCREMENT PRIMARY KEY,
-
+   `id` INT AUTO_INCREMENT PRIMARY KEY,
     id_financier INT NOT NULL,
-    commission VARCHAR(150) NOT NULL,
+    commission_id INT NOT NULL,
     budget DECIMAL(10,2) NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_prevision_depense_financier_created (id_financier, created_at),
@@ -311,125 +180,58 @@ CREATE TABLE IF NOT EXISTS prevision_depense (
         FOREIGN KEY (id_financier)
         REFERENCES table_encadreur(id_enc)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
-
-);
-
--- =====================================================
--- TABLE : finance_actuals (Dépenses réelles)
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS finance_actuals (
-
-    id_actual INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    commission_actual VARCHAR(150) NOT NULL,
-
-    amount_actual DECIMAL(10,2) NOT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_finance_actuals_encadreur_created (id_encadreur, created_at),
-    INDEX idx_finance_actuals_commission (commission_actual),
-
-    CONSTRAINT chk_finance_actuals_amount
-        CHECK (amount_actual > 0),
-
-    CONSTRAINT fk_finance_actuals_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    
+    CONSTRAINT fk_commission FOREIGN KEY (commission_id)
+     REFERENCES commissions(`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
 
 );
 
 CREATE TABLE IF NOT EXISTS depense_reelles (
-
-    id_depense_reelle INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_financier INT NOT NULL,
-    commission_depense_relle VARCHAR(150) NOT NULL,
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `commission_id` INT NOT NULL,
     budget_depense_rel DECIMAL(10,2) NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     INDEX idx_depense_reelles_financier_created (id_financier, created_at),
 
     CONSTRAINT chk_depense_reelles_budget
         CHECK (budget_depense_rel > 0),
 
     CONSTRAINT fk_depense_reelles_financier
-        FOREIGN KEY (id_financier)
-        REFERENCES table_encadreur(id_enc)
+        FOREIGN KEY (user_id)
+        REFERENCES users(`id`)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
-
+        ON UPDATE CASCADE,
+    
+    CONSTRAINT fk_commission FOREIGN KEY (commission_id)
+     REFERENCES commissions(`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
 );
 
--- =====================================================
--- MIGRATION SI LES TABLES EXISTENT DEJA
--- =====================================================
+CREATE TABLE IF NOT EXISTS locaux(
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `category_id` INT NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
+    `sexe` ENUM('Masculin', 'Féminin','Mixte') NOT NULL
+    `age_min` INT NOT NULL,
+    `age_max` INT NOT NULL,
+    `capacity` INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
--- Les colonnes finance_status, finance_validated_by et finance_validated_at
--- sont déjà définies dans la table participants ci-dessus.
--- Aucune ALTER TABLE n'est donc nécessaire ici.
-
--- =====================================================
--- TABLE : logistique_dortoirs (Gestion des dortoirs)
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS logistique_dortoirs (
-
-    id_dortoir INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    nom_dortoir VARCHAR(100) NOT NULL,
-
-    sexe_dortoir ENUM('Masculin', 'Féminin') NOT NULL,
-
-    age_min_dortoir INT NOT NULL,
-
-    age_max_dortoir INT NOT NULL,
-
-    capacite_dortoir INT NOT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_dortoirs_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(`id`)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
-
-);
-
--- =====================================================
--- TABLE : logistique_ateliers (Gestion des ateliers)
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS logistique_ateliers (
-
-    id_atelier INT AUTO_INCREMENT PRIMARY KEY,
-
-    id_encadreur INT NOT NULL,
-
-    nom_atelier VARCHAR(100) NOT NULL,
-
-    age_min_atelier INT NOT NULL,
-
-    age_max_atelier INT NOT NULL,
-
-    capacite_atelier INT NOT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_ateliers_encadreur
-        FOREIGN KEY (id_encadreur)
-        REFERENCES table_encadreur(id_enc)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-
+        ON UPDATE CASCADE,
+    
+    CONSTRAINT fk_category
+       FOREIGN KEY (category_id)
+       REFERENCES categories(id)
+       ON DELETE CASCADE
+       ON UPDATE CASCADE
 );
