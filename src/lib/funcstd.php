@@ -1,7 +1,5 @@
 <?php
 
-    // --- mes différentes fonctions --- //
-
     function f_erreur_400($level = ""){
         http_response_code(400);
         echo json_encode([

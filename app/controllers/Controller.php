@@ -1,5 +1,6 @@
 <?php 
   namespace App\controllers;
+  use Router\Router;
   class Controller
   {
     private static $controller;
@@ -19,7 +20,7 @@
      public static function status(int $status)
     {
       \http_response_code($status);
-     return self::instance();
+      return self::instance();
     }
     
     public static function json(array $array)
@@ -31,6 +32,16 @@
     public function inputs(){
       $datas = \file_get_contents('php://input');
       return $datas;
+    }
+
+    public function message(string $message): void
+    {
+      $_SESSION['message'] = $message;
+    }
+
+    public function redirect(string $route){
+      header("Location: " . $route);
+      exit;
     }
 
     public function create(){}

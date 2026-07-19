@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS groupes(
      `name` VARCHAR(30) UNIQUE  NOT NULL,
 );
 
-
 CREATE TABLE IF NOT EXISTS participants (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL,
@@ -75,7 +74,6 @@ CREATE TABLE IF NOT EXISTS participants (
      REFERENCES locaux(`id`)
              ON DELETE SET NULL
         ON UPDATE CASCADE,
-
 );
 
 CREATE TABLE IF NOT EXISTS paiements(
@@ -91,7 +89,6 @@ CREATE TABLE IF NOT EXISTS paiements(
      REFERENCES participants(`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-
 );
 
 CREATE TABLE IF NOT EXISTS `logs` (
@@ -105,7 +102,6 @@ CREATE TABLE IF NOT EXISTS `logs` (
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(`id`) 
         ON DELETE CASCADE 
         ON UPDATE CASCADE
-
 );
 
 -- =====================================================
@@ -129,7 +125,6 @@ CREATE TABLE IF NOT EXISTS finance_inputs (
         REFERENCES table_encadreur(id_enc)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-
 );
 
 -- =====================================================
@@ -186,7 +181,6 @@ CREATE TABLE IF NOT EXISTS prevision_depense (
      REFERENCES commissions(`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-
 );
 
 CREATE TABLE IF NOT EXISTS depense_reelles (

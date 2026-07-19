@@ -1,11 +1,10 @@
 <?php
 
+use App\Controllers\AuthController;
 use App\View;
 use Router\Router;
 
-Router::get('/', function () {
-    View::view('auth.login');
-});
+Router::get('/',[AuthController::class,'index']);
 
 Router::post('/login', function () {
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_login.php';
@@ -26,9 +25,7 @@ Router::post('/coordon/register', function () {
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_inscription_encadreur.php';
 });
 
-Router::get('/logout', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logout.php';
-});
+Router::post('/logout', [AuthController::class,'logout']);
 
 Router::get('/cordon', function () {
     View::view('cordon');
