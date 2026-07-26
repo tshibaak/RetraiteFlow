@@ -1,40 +1,33 @@
 <?php
+namespace App\Controllers;
 
-use App\controllers\Controller;
 use App\Models\Log;
+use App\Models\User;
 
-class LogController extends Controller{
-   protected  function getUserIp() 
-   {
-    if (!empty($_SERVER['HTTP_CLIENT_IP']))
+class LogController extends Controller
+{
+    protected Log $log;
+
+    public function __construct()
     {
-        // IP partagée par proxy
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } 
-    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) 
-    {
-        // IP réelle derrière un proxy/load balancer
-        return $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } 
-    else 
-    {
-        // IP directe
-        return $_SERVER['REMOTE_ADDR'];
+        $this->log = new Log();
     }
-  }
-// Enreigistrer un log d application 
-  public function store(int $user,string $action, string $detail){
-      $log = new Log();
-      $logs = [
-          'user_id' => $user,
-          'action' => $action,
-          'detail' => $detail,
-          'ip' => $this->getUserIp(),
-          'created_at' => date('Y-m-d H:i:s')
-      ];
-      $log->create($logs);
-  }
-  
-}
 
-?>
+    public function store(?int $userId, string $action, string $detail): void
+    {
+        if (!$userId) {
+            return;
+        }
+
+        try {
+            $this->log->create([
+                'user_id' => $userId,
+                'action' => mb_substr($action, 0, 60),
+                'detail' => $detail,
+                'ip' => $this->clientIp(),
+            ]);
+        } catch (\Throwable $e) {
+            // Les logs ne doivent jamais bloquer l'action principale.
+        }
+    }
+}

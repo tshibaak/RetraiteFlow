@@ -1,16 +1,8 @@
 <?php
+
 use Router\Router;
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['id_enc']) || !in_array($_SESSION['role'] ?? '', ['coordination', 'cordon'], true)) {
-    header('Location: ' . Router::route('/'));
-    exit();
-}
-
-require_once dirname(__DIR__, 2) . '/src/lib/funcstd.php';
+$nom_enc = $nom_enc ?? current_user_name();
 ?>
 
 <!DOCTYPE html>
@@ -28,7 +20,7 @@ require_once dirname(__DIR__, 2) . '/src/lib/funcstd.php';
 
 <body class="register-page">
     <?php
-    $nav_user_name = current_user_name();
+    $nav_user_name = $nom_enc;
     $nav_role_label = 'Cordon / Super-admin';
     $nav_home_url = Router::route('/cordon');
     $nav_extra_links = [

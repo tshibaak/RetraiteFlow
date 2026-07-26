@@ -1,51 +1,14 @@
 <?php
- use Router\Router;
-    require_once '../src/config/database.php';
-    require_once '../src/lib/funcstd.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);    
-    if(!isset($_SESSION['id_enc']) || ($_SESSION['role'] ?? '') !== 'encadreur'){
-        die("Session invalide");
-    }
-    $id_enc = $_SESSION['id_enc'];
+use Router\Router;
 
-    $sum_total_paiment = "SELECT SUM(montant_part) FROM participants WHERE id_encadreur = :id_enc";
-    $sum_solvable = "SELECT count(*) FROM participants WHERE id_encadreur = :id_enc AND groupe_part = 'solvable'";
-    $sum_accrédite = "SELECT count(*) FROM participants WHERE id_encadreur = :id_enc AND groupe_part = 'accrédité'";
-    $sum_social = "SELECT count(*) FROM participants WHERE id_encadreur = :id_enc AND groupe_part IN ('cas_social', 'cas social')";
-
-    $stmt = $db->prepare($sum_total_paiment);
-    $stmt->execute([":id_enc" => $id_enc]);
-    $stats_total_paiment = $stmt->fetchColumn();
-
-    $stmt_2 = $db->prepare($sum_solvable);
-    $stmt_2->execute([":id_enc" => $id_enc]);
-    $stats_sum_solvable = $stmt_2->fetchColumn();
-
-    $stmt_3 = $db->prepare($sum_accrédite);
-    $stmt_3->execute([":id_enc" => $id_enc]);
-    $stats_sum_accrédite = $stmt_3->fetchColumn();
-
-    $stmt_4 = $db->prepare($sum_social);
-    $stmt_4->execute([":id_enc" => $id_enc]);
-    $stats_sum_social = $stmt_4->fetchColumn();
-
-
-    // On récupère tous les participants
-    // On trie par nom pour que ce soit plus lisible
-
-    $requete_liste = "
-        SELECT * FROM participants where id_encadreur = :id_enc ORDER BY nom_part ASC
-    ";
-    $execution_liste = $db->prepare($requete_liste);
-    $execution_liste->execute([
-        ":id_enc" => $id_enc
-    ]); 
-    $participants = $execution_liste->fetchAll(PDO::FETCH_ASSOC);
-    $activity_logs = fetch_activity_logs($db, 'self', $id_enc, 50);
-    $nom_enc = current_user_name();
+$nom_enc = $nom_enc ?? current_user_name();
+$participants = $participants ?? [];
+$activity_logs = $activity_logs ?? [];
+$stats_sum_solvable = $stats_sum_solvable ?? 0;
+$stats_sum_accredite = $stats_sum_accredite ?? 0;
+$stats_sum_social = $stats_sum_social ?? 0;
+$stats_total_paiment = $stats_total_paiment ?? 0;
 
 ?>
 
@@ -83,7 +46,7 @@ error_reporting(E_ALL);
                 </div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalParticipants">
-                        <?php echo $stats_sum_solvable; ?>
+                        <?php echo (int) $stats_sum_solvable; ?>
                     </div>
                     <div class="stat-label">Solvables</div>
                 </div>
@@ -95,7 +58,7 @@ error_reporting(E_ALL);
                 </div>
                 <div class="stat-content">
                     <div class="stat-value" id="accredites">
-                        <?php echo $stats_sum_accrédite; ?>
+                        <?php echo (int) $stats_sum_accredite; ?>
                     </div>
                     <div class="stat-label">Accrédités</div>
                 </div>
@@ -107,7 +70,7 @@ error_reporting(E_ALL);
                 </div>
                 <div class="stat-content">
                     <div class="stat-value" id="casSociaux">
-                        <?php echo $stats_sum_social; ?>
+                        <?php echo (int) $stats_sum_social; ?>
                     </div>
                     <div class="stat-label">Cas Sociaux</div>
                 </div>
@@ -119,7 +82,7 @@ error_reporting(E_ALL);
                 </div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalRevenue">
-                        <?php echo ($stats_total_paiment ?? 0) . " $"; ?>
+                        <?php echo ((float) $stats_total_paiment) . ' $'; ?>
                     </div>
                     <div class="stat-label">Revenus totaux</div>
                 </div>
@@ -166,22 +129,24 @@ error_reporting(E_ALL);
                         </tr>
                     </thead>
                     <tbody id="participantsTable">
-                        <!-- Les participants seront ajoutés ici dynamiquement -->
-                        <?php foreach($participants as $p): ?>
+                        <?php foreach ($participants as $p): ?>
+                            <?php
+                            $groupeDisplay = $p['groupe_label'] ?? $p['groupe_name'] ?? '';
+                            $commissionDisplay = $p['commission_name'] ?? 'Rien';
+                            ?>
                             <tr>
                                 <td data-label="Participant">
-                                    <div style="font-weight: 600;"><?php echo h($p['nom_part']); ?></div>
+                                    <div style="font-weight: 600;"><?php echo h($p['name'] ?? ''); ?></div>
                                     <div style="font-size: 13px; color: var(--muted);">
-                                        <?php echo h($p['age_part']); ?> ans • <?php echo h($p['sexe_part']); ?> • <?php echo h($p['jours_part']); ?> jour(s)
+                                        <?php echo h($p['age'] ?? ''); ?> ans • <?php echo h($p['sexe'] ?? ''); ?> • <?php echo h($p['days'] ?? ''); ?> jour(s)
                                     </div>
                                 </td>
-                                <td data-label="Groupe"><?php echo h($p['groupe_part']); ?></td>
-                                <td data-label="Commission"><?php echo h($p['commission_part']); ?></td>
-                                <td data-label="Contact"><?php echo h($p['telephone_part']); ?></td>
+                                <td data-label="Groupe"><?php echo h($groupeDisplay); ?></td>
+                                <td data-label="Commission"><?php echo h($commissionDisplay); ?></td>
+                                <td data-label="Contact"><?php echo h($p['phone'] ?? ''); ?></td>
                                 <td data-label="Paiement">
-                                    <!-- Petite pastille de couleur selon le statut -->
                                     <span class="status-badge">
-                                        <?php echo number_format((float)$p['montant_part'], 2); ?> $
+                                        <?php echo number_format((float) ($p['amount'] ?? 0), 2); ?> $
                                     </span>
                                 </td>
                                 <td class="actions-cell" data-label="Actions">
@@ -190,21 +155,21 @@ error_reporting(E_ALL);
                                             type="button"
                                             class="btn-action btn-edit edit-participant"
                                             title="Modifier"
-                                            data-id="<?php echo (int)$p['id_part']; ?>"
-                                            data-nom="<?php echo h($p['nom_part']); ?>"
-                                            data-sexe="<?php echo h($p['sexe_part']); ?>"
-                                            data-age="<?php echo (int)$p['age_part']; ?>"
-                                            data-groupe="<?php echo h($p['groupe_part']); ?>"
-                                            data-commission="<?php echo h($p['commission_part']); ?>"
-                                            data-telephone="<?php echo h($p['telephone_part']); ?>"
-                                            data-montant="<?php echo h($p['montant_part']); ?>"
-                                            data-jours="<?php echo (int)$p['jours_part']; ?>"
+                                            data-id="<?php echo (int) ($p['id'] ?? 0); ?>"
+                                            data-nom="<?php echo h($p['name'] ?? ''); ?>"
+                                            data-sexe="<?php echo h($p['sexe'] ?? ''); ?>"
+                                            data-age="<?php echo (int) ($p['age'] ?? 0); ?>"
+                                            data-groupe="<?php echo h($groupeDisplay); ?>"
+                                            data-commission="<?php echo h($commissionDisplay); ?>"
+                                            data-telephone="<?php echo h($p['phone'] ?? ''); ?>"
+                                            data-montant="<?php echo h($p['amount'] ?? 0); ?>"
+                                            data-jours="<?php echo (int) ($p['days'] ?? 0); ?>"
                                         >
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <form action="<?= Router::route('/encadreur') ?>" method="post" onsubmit="return confirm('Supprimer ce participant ?');">
                                             <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="participant_id" value="<?php echo (int)$p['id_part']; ?>">
+                                            <input type="hidden" name="participant_id" value="<?php echo (int) ($p['id'] ?? 0); ?>">
                                             <button type="submit" class="btn-action btn-delete" title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -227,23 +192,21 @@ error_reporting(E_ALL);
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Module</th>
                             <th>Action</th>
                             <th>Détail</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(count($activity_logs) === 0): ?>
+                        <?php if (count($activity_logs) === 0): ?>
                             <tr>
-                                <td colspan="4" style="text-align:center; padding: 24px; color: var(--muted);">Aucun historique disponible</td>
+                                <td colspan="3" style="text-align:center; padding: 24px; color: var(--muted);">Aucun historique disponible</td>
                             </tr>
                         <?php endif; ?>
-                        <?php foreach($activity_logs as $log): ?>
+                        <?php foreach ($activity_logs as $log): ?>
                             <tr>
-                                <td><?php echo h($log['created_at']); ?></td>
-                                <td><?php echo h($log['module']); ?></td>
-                                <td><?php echo h($log['action_type']); ?></td>
-                                <td><?php echo h($log['description']); ?></td>
+                                <td><?php echo h($log['created_at'] ?? ''); ?></td>
+                                <td><?php echo h($log['action'] ?? ''); ?></td>
+                                <td><?php echo h($log['detail'] ?? ''); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -266,23 +229,23 @@ error_reporting(E_ALL);
                     </button>
                 </div>
                 <div class="modal-body">
-                    <?php if( isset($_SESSION['confirmation_ok'])):   ?>
+                    <?php if (isset($_SESSION['confirmation_ok'])): ?>
                         <div id="confirmation" style="color: green; padding: 10px; border: 1px solid green;">
-                            <?php 
-                                echo $_SESSION['confirmation_ok'];
+                            <?php
+                                echo h($_SESSION['confirmation_ok']);
                                 unset($_SESSION['confirmation_ok']);
                             ?>
                         </div>
-                    <?php endif;   ?>
+                    <?php endif; ?>
 
-                    <?php if( isset($_SESSION['confirmation_non'])):   ?>
+                    <?php if (isset($_SESSION['confirmation_non'])): ?>
                         <div id="confirmation" style="color: red; padding: 10px; border: 1px solid red;">
-                            <?php 
-                                echo $_SESSION['confirmation_non'];
+                            <?php
+                                echo h($_SESSION['confirmation_non']);
                                 unset($_SESSION['confirmation_non']);
                             ?>
                         </div>
-                    <?php endif;   ?>
+                    <?php endif; ?>
                     <form action="<?= Router::route('/encadreur') ?>" method="post" id="inscriptionForm">
                         <input type="hidden" name="action" id="formAction" value="save">
                         <input type="hidden" name="participant_id" id="participantId" value="">
@@ -397,7 +360,7 @@ error_reporting(E_ALL);
                 </div>
             </div>
         </div>
-  
+
 
 
     <!-- Help Widget -->

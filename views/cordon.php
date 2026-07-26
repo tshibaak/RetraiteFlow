@@ -2,80 +2,23 @@
 
 use Router\Router;
 
-    require_once '../src/config/database.php';
-    require_once '../src/lib/funcstd.php';
+$nom_enc = $nom_enc ?? current_user_name();
+$kpi_participants = (int) ($kpi_participants ?? 0);
+$kpi_dortoirs = (int) ($kpi_dortoirs ?? 0);
+$kpi_ateliers = (int) ($kpi_ateliers ?? 0);
+$kpi_finance = (float) ($kpi_finance ?? 0);
+$total_actuals = (float) ($total_actuals ?? 0);
+$total_forecasts = (float) ($total_forecasts ?? 0);
+$participants_loges = (int) ($participants_loges ?? 0);
+$participants_atelier = (int) ($participants_atelier ?? 0);
+$count_solvables = (int) ($count_solvables ?? 0);
+$count_accredites = (int) ($count_accredites ?? 0);
+$count_sociaux = (int) ($count_sociaux ?? 0);
+$count_confirmes = (int) ($count_confirmes ?? 0);
+$count_attente = (int) ($count_attente ?? 0);
+$count_deconfirmes = (int) ($count_deconfirmes ?? 0);
+$activity_logs = $activity_logs ?? [];
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
-    // Vérifier l'accès (super-admin)
-    if(!isset($_SESSION['id_enc']) || !in_array($_SESSION['role'], ['coordination', 'cordon'], true)){
-        die("Accès refusé");
-    }
-
-    $id_enc = $_SESSION['id_enc'];
-    $nom_enc = $_SESSION['nom_enc'] . ' ' . $_SESSION['prenom_enc'];
-
-    // Récupérer les KPIs globaux (tous les encadreurs)
-    $stmt_total_participants = $db->prepare("SELECT COUNT(*) as count FROM participants");
-    $stmt_total_participants->execute();
-    $kpi_participants = $stmt_total_participants->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_total_dortoirs = $db->prepare("SELECT COUNT(*) as count FROM logistique_dortoirs");
-    $stmt_total_dortoirs->execute();
-    $kpi_dortoirs = $stmt_total_dortoirs->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_total_ateliers = $db->prepare("SELECT COUNT(*) as count FROM logistique_ateliers");
-    $stmt_total_ateliers->execute();
-    $kpi_ateliers = $stmt_total_ateliers->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_total_inputs = $db->prepare("SELECT SUM(montant_part) as total FROM participants WHERE finance_status = 'confirme'");
-    $stmt_total_inputs->execute();
-    $kpi_finance = $stmt_total_inputs->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
-    $stmt_actuals = $db->prepare("SELECT SUM(amount_actual) as total FROM finance_actuals");
-    $stmt_actuals->execute();
-    $total_actuals = $stmt_actuals->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
-    $stmt_forecasts = $db->prepare("SELECT SUM(budget_forecast) as total FROM finance_forecasts");
-    $stmt_forecasts->execute();
-    $total_forecasts = $stmt_forecasts->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
-    $stmt_loges = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE dortoir_id IS NOT NULL");
-    $stmt_loges->execute();
-    $participants_loges = $stmt_loges->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_atelier_participants = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE atelier_id IS NOT NULL");
-    $stmt_atelier_participants->execute();
-    $participants_atelier = $stmt_atelier_participants->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    // Récupérer les résumés par groupe
-    $stmt_solvables = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE groupe_part = 'solvable'");
-    $stmt_solvables->execute();
-    $count_solvables = $stmt_solvables->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_accredites = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE groupe_part = 'accrédité'");
-    $stmt_accredites->execute();
-    $count_accredites = $stmt_accredites->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_sociaux = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE groupe_part IN ('cas_social', 'cas social')");
-    $stmt_sociaux->execute();
-    $count_sociaux = $stmt_sociaux->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_confirmes = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE finance_status = 'confirme'");
-    $stmt_confirmes->execute();
-    $count_confirmes = $stmt_confirmes->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_attente = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE finance_status = 'en_attente'");
-    $stmt_attente->execute();
-    $count_attente = $stmt_attente->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_deconfirmes = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE finance_status = 'deconfirme'");
-    $stmt_deconfirmes->execute();
-    $count_deconfirmes = $stmt_deconfirmes->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $activity_logs = fetch_activity_logs($db, 'all', null, 100);
 ?>
 
 <!DOCTYPE html>
@@ -297,26 +240,22 @@ use Router\Router;
                         <tr>
                             <th>Date</th>
                             <th>Compte</th>
-                            <th>Rôle</th>
-                            <th>Module</th>
                             <th>Action</th>
                             <th>Détail</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(count($activity_logs) === 0): ?>
+                        <?php if (count($activity_logs) === 0): ?>
                             <tr>
-                                <td colspan="6" style="text-align:center; padding: 24px; color: var(--muted);">Aucun historique disponible</td>
+                                <td colspan="4" style="text-align:center; padding: 24px; color: var(--muted);">Aucun historique disponible</td>
                             </tr>
                         <?php endif; ?>
-                        <?php foreach($activity_logs as $log): ?>
+                        <?php foreach ($activity_logs as $log): ?>
                             <tr>
-                                <td><?php echo h($log['created_at']); ?></td>
-                                <td><?php echo h($log['actor_name']); ?></td>
-                                <td><?php echo h($log['actor_role']); ?></td>
-                                <td><?php echo h($log['module']); ?></td>
-                                <td><?php echo h($log['action_type']); ?></td>
-                                <td><?php echo h($log['description']); ?></td>
+                                <td><?php echo h($log['created_at'] ?? ''); ?></td>
+                                <td><?php echo h($log['user_name'] ?? ''); ?></td>
+                                <td><?php echo h($log['action'] ?? ''); ?></td>
+                                <td><?php echo h($log['detail'] ?? ''); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

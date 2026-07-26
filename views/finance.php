@@ -1,70 +1,37 @@
 <?php
-  use Router\Router;
-    require_once '../src/config/database.php';
-    require_once '../src/lib/funcstd.php';
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+use Router\Router;
 
-    // Vérifier l'accès
-    if(!isset($_SESSION['id_enc']) || $_SESSION['role'] !== 'finance'){
-        die("Accès refusé");
-    }
+$nom_enc = $nom_enc ?? current_user_name();
+$total_inputs = (float) ($total_inputs ?? 0);
+$total_actuals = (float) ($total_actuals ?? 0);
+$total_forecasts = (float) ($total_forecasts ?? 0);
+$solde = (float) ($solde ?? ($total_inputs - $total_actuals));
+$remaining_budget = (float) ($remaining_budget ?? ($total_forecasts - $total_actuals));
+$total_participants = (int) ($total_participants ?? 0);
+$confirmed_participants = (int) ($confirmed_participants ?? 0);
+$pending_participants = (int) ($pending_participants ?? 0);
+$rejected_participants = (int) ($rejected_participants ?? 0);
+$all_forecasts = $all_forecasts ?? [];
+$all_actuals = $all_actuals ?? [];
+$finance_participants = $finance_participants ?? [];
+$activity_logs = $activity_logs ?? [];
 
-    $id_enc = $_SESSION['id_enc'];
-    $nom_enc = $_SESSION['nom_enc'] . ' ' . $_SESSION['prenom_enc'];
+$groupeLabels = [
+    'solvable' => 'Solvable',
+    'accredited' => 'Accrédité',
+    'social_case' => 'Cas Social',
+];
 
-    function fetch_sum(PDO $db, string $sql, array $params = []): float {
-        try {
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
-            return (float) ($stmt->fetchColumn() ?: 0);
-        } catch (PDOException $e) {
-            return 0.0;
-        }
-    }
+$statusMap = [
+    'pending' => ['key' => 'en_attente', 'label' => 'En attente', 'class' => 'badge-warning'],
+    'en_attente' => ['key' => 'en_attente', 'label' => 'En attente', 'class' => 'badge-warning'],
+    'confirmed' => ['key' => 'confirme', 'label' => 'Confirmé', 'class' => 'badge-success'],
+    'confirme' => ['key' => 'confirme', 'label' => 'Confirmé', 'class' => 'badge-success'],
+    'rejected' => ['key' => 'deconfirme', 'label' => 'Déconfirmé', 'class' => 'badge-danger'],
+    'deconfirme' => ['key' => 'deconfirme', 'label' => 'Déconfirmé', 'class' => 'badge-danger'],
+];
 
-    // Récupérer les statistiques financières
-    $total_inputs = fetch_sum($db, "SELECT SUM(montant_part) FROM participants WHERE finance_status = 'confirme'");
-    $total_actuals = fetch_sum($db, "SELECT SUM(amount_actual) FROM finance_actuals WHERE id_encadreur = :id_enc", [":id_enc" => $id_enc]);
-    $total_forecasts = fetch_sum($db, "SELECT SUM(budget_forecast) FROM finance_forecasts WHERE id_encadreur = :id_enc", [":id_enc" => $id_enc]);
-    $total_participants = (int) fetch_sum($db, "SELECT COUNT(*) FROM participants");
-    $confirmed_participants = (int) fetch_sum($db, "SELECT COUNT(*) FROM participants WHERE finance_status = 'confirme'");
-    $pending_participants = (int) fetch_sum($db, "SELECT COUNT(*) FROM participants WHERE finance_status = 'en_attente'");
-    $rejected_participants = (int) fetch_sum($db, "SELECT COUNT(*) FROM participants WHERE finance_status = 'deconfirme'");
-
-    $solde = $total_inputs - $total_actuals;
-    $remaining_budget = $total_forecasts - $total_actuals;
-
-    // Récupérer les données
-    $stmt_all_inputs = $db->prepare("SELECT * FROM finance_inputs WHERE id_encadreur = :id_enc ORDER BY created_at DESC");
-    $stmt_all_inputs->execute([":id_enc" => $id_enc]);
-    $all_inputs = $stmt_all_inputs->fetchAll(PDO::FETCH_ASSOC);
-
-    $stmt_all_forecasts = $db->prepare("SELECT * FROM finance_forecasts WHERE id_encadreur = :id_enc ORDER BY created_at DESC");
-    $stmt_all_forecasts->execute([":id_enc" => $id_enc]);
-    $all_forecasts = $stmt_all_forecasts->fetchAll(PDO::FETCH_ASSOC);
-
-    $stmt_all_actuals = $db->prepare("SELECT * FROM finance_actuals WHERE id_encadreur = :id_enc ORDER BY created_at DESC");
-    $stmt_all_actuals->execute([":id_enc" => $id_enc]);
-    $all_actuals = $stmt_all_actuals->fetchAll(PDO::FETCH_ASSOC);
-
-    $stmt_participants = $db->prepare("
-        SELECT
-            p.*,
-            CONCAT(e.nom_enc, ' ', e.prenom_enc) AS encadreur_name,
-            v.nom_enc AS validator_nom,
-            v.prenom_enc AS validator_prenom
-        FROM participants p
-        JOIN table_encadreur e ON e.id_enc = p.id_encadreur
-        LEFT JOIN table_encadreur v ON v.id_enc = p.finance_validated_by
-        ORDER BY p.created_at DESC, p.nom_part ASC
-    ");
-    $stmt_participants->execute();
-    $finance_participants = $stmt_participants->fetchAll(PDO::FETCH_ASSOC);
-
-    $activity_logs = fetch_activity_logs($db, 'encadreurs', null, 80);
 ?>
 
 <!DOCTYPE html>
@@ -209,39 +176,40 @@
                         </tr>
                     </thead>
                     <tbody id="financeParticipantsBody">
-                        <?php if(count($finance_participants) === 0): ?>
+                        <?php if (count($finance_participants) === 0): ?>
                             <tr>
                                 <td colspan="7" style="text-align:center; padding:24px; color:var(--muted);">Aucun participant enregistré</td>
                             </tr>
                         <?php endif; ?>
-                        <?php foreach($finance_participants as $p): ?>
+                        <?php foreach ($finance_participants as $p): ?>
                             <?php
-                                $status = $p['finance_status'] ?? 'en_attente';
-                                $status_label = $status === 'confirme' ? 'Confirmé' : ($status === 'deconfirme' ? 'Déconfirmé' : 'En attente');
-                                $status_class = $status === 'confirme' ? 'badge-success' : ($status === 'deconfirme' ? 'badge-danger' : 'badge-warning');
+                                $rawStatus = $p['paiement_statut'] ?? 'pending';
+                                $statusInfo = $statusMap[$rawStatus] ?? $statusMap['pending'];
+                                $groupeName = $p['groupe_name'] ?? '';
+                                $groupeDisplay = $groupeLabels[$groupeName] ?? $groupeName;
                             ?>
                             <tr>
                                 <td data-label="Participant">
-                                    <div style="font-weight:700;"><?php echo h($p['nom_part']); ?></div>
-                                    <div style="font-size:13px;color:var(--muted);"><?php echo h($p['age_part']); ?> ans • <?php echo h($p['sexe_part']); ?></div>
+                                    <div style="font-weight:700;"><?php echo h($p['name'] ?? ''); ?></div>
+                                    <div style="font-size:13px;color:var(--muted);"><?php echo h($p['age'] ?? ''); ?> ans • <?php echo h($p['sexe'] ?? ''); ?></div>
                                 </td>
-                                <td data-label="Encadreur"><?php echo h($p['encadreur_name']); ?></td>
-                                <td data-label="Groupe"><?php echo h($p['groupe_part']); ?></td>
-                                <td data-label="Commission"><?php echo h($p['commission_part']); ?></td>
-                                <td data-label="Montant"><?php echo number_format((float)$p['montant_part'], 2); ?> $</td>
+                                <td data-label="Encadreur"><?php echo h($p['encadreur_name'] ?? ''); ?></td>
+                                <td data-label="Groupe"><?php echo h($groupeDisplay); ?></td>
+                                <td data-label="Commission"><?php echo h($p['commission_name'] ?? ''); ?></td>
+                                <td data-label="Montant"><?php echo number_format((float) ($p['amount'] ?? 0), 2); ?> $</td>
                                 <td data-label="Statut">
-                                    <span class="badge <?php echo $status_class; ?>"><?php echo $status_label; ?></span>
-                                    <?php if(!empty($p['finance_validated_at'])): ?>
-                                        <div style="font-size:12px;color:var(--muted);"><?php echo h($p['finance_validated_at']); ?></div>
+                                    <span class="badge <?php echo h($statusInfo['class']); ?>"><?php echo h($statusInfo['label']); ?></span>
+                                    <?php if (!empty($p['validator_name'])): ?>
+                                        <div style="font-size:12px;color:var(--muted);"><?php echo h($p['validator_name']); ?></div>
                                     <?php endif; ?>
                                 </td>
                                 <td data-label="Actions">
                                     <div class="actions actions-cell">
-                                        <button class="btn-secondary finance-status-btn" data-id="<?php echo (int)$p['id_part']; ?>" data-status="confirme">
+                                        <button class="btn-secondary finance-status-btn" data-id="<?php echo (int) ($p['id'] ?? 0); ?>" data-status="confirme">
                                             <i class="fas fa-check"></i>
                                             Confirmer
                                         </button>
-                                        <button class="btn-secondary finance-status-btn" data-id="<?php echo (int)$p['id_part']; ?>" data-status="deconfirme">
+                                        <button class="btn-secondary finance-status-btn" data-id="<?php echo (int) ($p['id'] ?? 0); ?>" data-status="deconfirme">
                                             <i class="fas fa-times"></i>
                                             Déconfirmer
                                         </button>
@@ -254,44 +222,20 @@
             </div>
         </section>
 
-        <!-- Entrées -->
+        <!-- Entrées (paiements confirmés) -->
         <section class="participants-section" style="margin-bottom: 20px;">
             <div class="section-header">
-                <h2 class="section-title">Entrées complémentaires</h2>
-                <div class="table-actions">
-                    <button class="btn-secondary" type="button" id="exportInputsBtn">
-                        <i class="fas fa-file-excel"></i>
-                        Exporter
-                    </button>
-                </div>
+                <h2 class="section-title">Entrées</h2>
             </div>
-
-            <div class="table-container" style="margin-bottom: 18px;">
-                <form id="inputsForm" class="form-grid">
-                    <div class="form-group">
-                        <label for="inputSource"><i class="fas fa-tag"></i> Source</label>
-                        <input id="inputSource" name="inputSource" type="text" placeholder="Ex: Paiements participants" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="inputAmount"><i class="fas fa-money-bill-wave"></i> Montant ($)</label>
-                        <input id="inputAmount" name="inputAmount" type="number" min="0" step="0.01" placeholder="0.00" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Ajouter une entrée
-                        </button>
-                    </div>
-                </form>
-            </div>
-
             <div class="table-container">
+                <p style="padding: 12px 4px; color: var(--muted); margin: 0 0 12px;">
+                    Les revenus proviennent des paiements confirmés des participants (plus d'entrées complémentaires manuelles).
+                </p>
                 <table>
                     <thead>
                         <tr>
                             <th>Source</th>
                             <th>Montant</th>
-                            <th class="actions-header">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="inputsTableBody">
@@ -301,21 +245,7 @@
                                 <div style="font-size: 12px; color: var(--muted);">Calculé depuis les confirmations du financier</div>
                             </td>
                             <td data-label="Montant"><?php echo number_format($total_inputs, 2); ?> $</td>
-                            <td data-label="Actions">
-                                <span style="font-size: 12px; color: var(--muted); font-weight: 600;">Auto</span>
-                            </td>
                         </tr>
-                        <?php foreach($all_inputs as $input): ?>
-                        <tr>
-                            <td data-label="Source"><?php echo htmlspecialchars($input['source_input']); ?></td>
-                            <td data-label="Montant"><?php echo number_format($input['amount_input'], 2); ?> $</td>
-                            <td data-label="Actions">
-                                <button class="btn-secondary" onclick="deleteInput(<?php echo $input['id_input']; ?>)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -362,12 +292,12 @@
                         </tr>
                     </thead>
                     <tbody id="forecastTableBody">
-                        <?php foreach($all_forecasts as $forecast): ?>
+                        <?php foreach ($all_forecasts as $forecast): ?>
                         <tr>
-                            <td data-label="Commission"><?php echo htmlspecialchars($forecast['commission_forecast']); ?></td>
-                            <td data-label="Budget"><?php echo number_format($forecast['budget_forecast'], 2); ?> $</td>
+                            <td data-label="Commission"><?php echo h($forecast['commission_name'] ?? ''); ?></td>
+                            <td data-label="Budget"><?php echo number_format((float) ($forecast['budget'] ?? 0), 2); ?> $</td>
                             <td data-label="Actions">
-                                <button class="btn-secondary" onclick="deleteForecast(<?php echo $forecast['id_forecast']; ?>)">
+                                <button class="btn-secondary" onclick="deleteForecast(<?php echo (int) ($forecast['id'] ?? 0); ?>)">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -419,12 +349,12 @@
                         </tr>
                     </thead>
                     <tbody id="actualTableBody">
-                        <?php foreach($all_actuals as $actual): ?>
+                        <?php foreach ($all_actuals as $actual): ?>
                         <tr>
-                            <td data-label="Commission"><?php echo htmlspecialchars($actual['commission_actual']); ?></td>
-                            <td data-label="Dépense"><?php echo number_format($actual['amount_actual'], 2); ?> $</td>
+                            <td data-label="Commission"><?php echo h($actual['commission_name'] ?? ''); ?></td>
+                            <td data-label="Dépense"><?php echo number_format((float) ($actual['budget_depense_rel'] ?? 0), 2); ?> $</td>
                             <td data-label="Actions">
-                                <button class="btn-secondary" onclick="deleteActual(<?php echo $actual['id_actual']; ?>)">
+                                <button class="btn-secondary" onclick="deleteActual(<?php echo (int) ($actual['id'] ?? 0); ?>)">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -480,24 +410,22 @@
                         <tr>
                             <th>Date</th>
                             <th>Encadreur</th>
-                            <th>Module</th>
                             <th>Action</th>
                             <th>Détail</th>
                         </tr>
                     </thead>
                     <tbody id="financeLogsBody">
-                        <?php if(count($activity_logs) === 0): ?>
+                        <?php if (count($activity_logs) === 0): ?>
                             <tr>
-                                <td colspan="5" style="text-align:center; padding:24px; color:var(--muted);">Aucun log encadreur disponible</td>
+                                <td colspan="4" style="text-align:center; padding:24px; color:var(--muted);">Aucun log encadreur disponible</td>
                             </tr>
                         <?php endif; ?>
-                        <?php foreach($activity_logs as $log): ?>
+                        <?php foreach ($activity_logs as $log): ?>
                             <tr>
-                                <td><?php echo h($log['created_at']); ?></td>
-                                <td><?php echo h($log['actor_name']); ?></td>
-                                <td><?php echo h($log['module']); ?></td>
-                                <td><?php echo h($log['action_type']); ?></td>
-                                <td><?php echo h($log['description']); ?></td>
+                                <td><?php echo h($log['created_at'] ?? ''); ?></td>
+                                <td><?php echo h($log['user_name'] ?? ''); ?></td>
+                                <td><?php echo h($log['action'] ?? ''); ?></td>
+                                <td><?php echo h($log['detail'] ?? ''); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

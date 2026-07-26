@@ -1,49 +1,19 @@
 <?php
-    use Router\Router;
-    require_once '../src/config/database.php';
-    require_once '../src/lib/funcstd.php';
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+use Router\Router;
 
-    // Vérifier que l'utilisateur est connecté et a le bon rôle
-    if(!isset($_SESSION['id_enc']) || $_SESSION['role'] !== 'discipline'){
-        die("Accès refusé");
-    }
+$nom_enc = $nom_enc ?? current_user_name();
+$count_entries = (int) ($count_entries ?? 0);
+$count_exits = (int) ($count_exits ?? 0);
+$participants = $participants ?? [];
+$today = date('Y-m-d');
 
-    $id_enc = $_SESSION['id_enc'];
-    $nom_enc = $_SESSION['nom_enc'] . ' ' . $_SESSION['prenom_enc'];
+$groupeLabels = [
+    'solvable' => 'Solvable',
+    'accredited' => 'Accrédité',
+    'social_case' => 'Cas Social',
+];
 
-    // Récupérer les statistiques pour le jour
-    $today = date('Y-m-d');
-
-    $stmt_entries = $db->prepare("
-        SELECT COUNT(*) as count_entrees FROM discipline_logs
-        WHERE id_participant IN (SELECT id_part FROM participants WHERE id_encadreur = :id_enc)
-        AND type_log = 'entree'
-        AND DATE(logged_at) = :today
-    ");
-    $stmt_entries->execute([":id_enc" => $id_enc, ":today" => $today]);
-    $count_entries = $stmt_entries->fetch(PDO::FETCH_ASSOC)['count_entrees'] ?? 0;
-
-    $stmt_exits = $db->prepare("
-        SELECT COUNT(*) as count_sorties FROM discipline_logs
-        WHERE id_participant IN (SELECT id_part FROM participants WHERE id_encadreur = :id_enc)
-        AND type_log = 'sortie'
-        AND DATE(logged_at) = :today
-    ");
-    $stmt_exits->execute([":id_enc" => $id_enc, ":today" => $today]);
-    $count_exits = $stmt_exits->fetch(PDO::FETCH_ASSOC)['count_sorties'] ?? 0;
-
-    // Récupérer tous les participants
-    $stmt_participants = $db->prepare("
-        SELECT * FROM participants
-        WHERE id_encadreur = :id_enc
-        ORDER BY nom_part ASC
-    ");
-    $stmt_participants->execute([":id_enc" => $id_enc]);
-    $participants = $stmt_participants->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -131,7 +101,7 @@
                         </tr>
                     </thead>
                     <tbody id="disciplineTable">
-                        <?php if(count($participants) === 0): ?>
+                        <?php if (count($participants) === 0): ?>
                         <tr>
                             <td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">
                                 <i class="fas fa-users" style="font-size:40px;margin-bottom:10px;opacity:.5;display:block;"></i>
@@ -139,19 +109,24 @@
                             </td>
                         </tr>
                         <?php else: ?>
-                            <?php foreach($participants as $p): ?>
+                            <?php foreach ($participants as $p): ?>
+                            <?php
+                                $groupeName = $p['groupe_name'] ?? '';
+                                $groupeDisplay = $groupeLabels[$groupeName] ?? $groupeName;
+                                $participantName = $p['name'] ?? '';
+                            ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($p['nom_part']); ?></td>
-                                <td><?php echo htmlspecialchars($p['groupe_part']); ?></td>
-                                <td><?php echo htmlspecialchars($p['commission_part'] ?? ''); ?></td>
+                                <td><?php echo h($participantName); ?></td>
+                                <td><?php echo h($groupeDisplay); ?></td>
+                                <td><?php echo h($p['commission_name'] ?? ''); ?></td>
                                 <td class="lastActionType">—</td>
                                 <td class="lastActionTime">—</td>
                                 <td>
                                     <div class="actions">
-                                        <button class="btn-secondary" type="button" onclick="markEntry(<?php echo $p['id_part']; ?>)">
+                                        <button class="btn-secondary" type="button" onclick="markEntry(<?= json_encode($participantName, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)">
                                             <i class="fas fa-door-open"></i>
                                         </button>
-                                        <button class="btn-secondary" type="button" onclick="markExit(<?php echo $p['id_part']; ?>)">
+                                        <button class="btn-secondary" type="button" onclick="markExit(<?= json_encode($participantName, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)">
                                             <i class="fas fa-door-closed"></i>
                                         </button>
                                     </div>
@@ -170,7 +145,7 @@
                 <h2 class="section-title">Rapports quotidiens</h2>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <label for="rapportDate" style="font-size:14px;color:var(--muted);">Date :</label>
-                    <input type="date" id="rapportDate" value="<?php echo $today; ?>"
+                    <input type="date" id="rapportDate" value="<?php echo h($today); ?>"
                         style="padding:8px 10px;border-radius:6px;border:1px solid #e2e8f0;">
                 </div>
             </div>

@@ -2,7 +2,7 @@
  namespace Router;
 
  use App\App;
-use App\controllers\Controller;
+use App\Controllers\Controller;
 
    class Router
    {

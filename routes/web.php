@@ -1,66 +1,31 @@
 <?php
 
 use App\Controllers\AuthController;
-use App\View;
-use Router\Router;
+use App\Controllers\CordonController;
+use App\Controllers\DisciplineController;
+use App\Controllers\FinanceController;
+use App\Controllers\LogistiqueController;
+use App\Controllers\ParticipantController;
 
-Router::get('/',[AuthController::class,'index']);
+Router\Router::get('/', [AuthController::class, 'index']);
+Router\Router::post('/login', [AuthController::class, 'login']);
+Router\Router::get('/logout', [AuthController::class, 'logout']);
+Router\Router::post('/logout', [AuthController::class, 'logout']);
 
-Router::post('/login', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_login.php';
-});
+Router\Router::get('/coordon/register', [AuthController::class, 'showRegister']);
+Router\Router::post('/coordon/register', [AuthController::class, 'register']);
 
-Router::get('/coordon/register', function () {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (!isset($_SESSION['id_enc']) || !in_array($_SESSION['role'] ?? '', ['coordination', 'cordon'], true)) {
-        header('Location: ' . Router::route('/'));
-        exit();
-    }
-    View::view('auth.register');
-});
+Router\Router::get('/encadreur', [ParticipantController::class, 'index']);
+Router\Router::post('/encadreur', [ParticipantController::class, 'store']);
 
-Router::post('/coordon/register', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_inscription_encadreur.php';
-});
+Router\Router::get('/logistique', [LogistiqueController::class, 'index']);
+Router\Router::post('/api/logistique', [LogistiqueController::class, 'handle']);
 
-Router::post('/logout', [AuthController::class,'logout']);
+Router\Router::get('/finance', [FinanceController::class, 'index']);
+Router\Router::post('/api/finance', [FinanceController::class, 'handle']);
 
-Router::get('/cordon', function () {
-    View::view('cordon');
-});
+Router\Router::get('/discipline', [DisciplineController::class, 'index']);
+Router\Router::post('/api/discipline', [DisciplineController::class, 'handle']);
 
-Router::get('/discipline', function () {
-    View::view('discipline');
-});
-
-Router::get('/encadreur', function () {
-    View::view('encadreur');
-});
-
-Router::post('/encadreur', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_gest_encadreur.php';
-});
-
-Router::get('/finance', function () {
-    View::view('finance');
-});
-
-Router::get('/logistique', function () {
-    View::view('logistique');
-});
-
-Router::post('/api/finance', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_finance.php';
-});
-
-Router::post('/api/discipline', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_discipline.php';
-});
-
-Router::post('/api/logistique', function () {
-    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src/api/traitement_logistique.php';
-});
-
-?>
+Router\Router::get('/cordon', [CordonController::class, 'index']);
+Router\Router::get('/coordon', [CordonController::class, 'index']);

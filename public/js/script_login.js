@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('.login-form');
     const username = document.querySelector('input[name="username"]');
     const password = document.querySelector('input[name="password"]');
-    const role = document.querySelector('select[name="role"]');
     const errorMessages = document.getElementById('error-messages');
 
 
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const passwordMinLength = 6;
 
         // Vérification des champs vides
-        if (!username.value && !password.value && !role.value) {
+        if (!username.value && !password.value) {
             e.preventDefault();
             updateErrorMessage('Veuillez remplir tous les champs');
             return;
@@ -56,11 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!password.value) {
             e.preventDefault();
             updateErrorMessage('Veuillez saisir votre mot de passe');
-            return;
-        }
-        if (!role.value) {
-            e.preventDefault();
-            updateErrorMessage('Veuillez sélectionner votre rôle');
             return;
         }
 
@@ -93,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
     username.addEventListener('input', function () {
         if (username.value.length > 0 && username.value.length < 3) {
             updateErrorMessage(`Le nom d'utilisateur doit contenir au moins 3 caractères`);
-        } else if (username.value.length >= 3 && password.value.length >= 6 && role.value) {
+        } else if (username.value.length >= 3 && password.value.length >= 6) {
             errorMessages.className = 'error-messages';
             errorMessages.textContent = '';
         } else {
@@ -105,17 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
     password.addEventListener('input', function () {
         if (password.value.length > 0 && password.value.length < 6) {
             updateErrorMessage('Le mot de passe doit contenir au moins 6 caractères');
-        } else if (username.value.length >= 3 && password.value.length >= 6 && role.value) {
+        } else if (username.value.length >= 3 && password.value.length >= 6) {
             errorMessages.className = 'error-messages';
             errorMessages.textContent = '';
         } else {
-            errorMessages.className = 'error-messages';
-            errorMessages.textContent = '';
-        }
-    });
-
-    role.addEventListener('change', function () {
-        if (username.value.length >= 3 && password.value.length >= 6 && role.value) {
             errorMessages.className = 'error-messages';
             errorMessages.textContent = '';
         }

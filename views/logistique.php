@@ -1,41 +1,14 @@
 <?php
-   use Router\Router;
-    require_once '../src/config/database.php';
-    require_once '../src/lib/funcstd.php';
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+use Router\Router;
 
-    // Vérifier l'accès
-    if(!isset($_SESSION['id_enc']) || $_SESSION['role'] !== 'logistique'){
-        die("Accès refusé");
-    }
+$nom_enc = $nom_enc ?? current_user_name();
+$count_participants = $count_participants ?? 0;
+$count_dortoirs = $count_dortoirs ?? 0;
+$count_ateliers = $count_ateliers ?? 0;
+$all_dortoirs = $all_dortoirs ?? [];
+$all_ateliers = $all_ateliers ?? [];
 
-    $id_enc = $_SESSION['id_enc'];
-    $nom_enc = $_SESSION['nom_enc'] . ' ' . $_SESSION['prenom_enc'];
-
-    // Récupérer les statistiques
-    $stmt_participants = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE id_encadreur = :id_enc");
-    $stmt_participants->execute([":id_enc" => $id_enc]);
-    $count_participants = $stmt_participants->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_dortoirs = $db->prepare("SELECT COUNT(*) as count FROM logistique_dortoirs WHERE id_encadreur = :id_enc");
-    $stmt_dortoirs->execute([":id_enc" => $id_enc]);
-    $count_dortoirs = $stmt_dortoirs->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    $stmt_ateliers = $db->prepare("SELECT COUNT(*) as count FROM logistique_ateliers WHERE id_encadreur = :id_enc");
-    $stmt_ateliers->execute([":id_enc" => $id_enc]);
-    $count_ateliers = $stmt_ateliers->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-    // Récupérer les dortoirs et ateliers
-    $stmt_all_dortoirs = $db->prepare("SELECT * FROM logistique_dortoirs WHERE id_encadreur = :id_enc ORDER BY nom_dortoir ASC");
-    $stmt_all_dortoirs->execute([":id_enc" => $id_enc]);
-    $all_dortoirs = $stmt_all_dortoirs->fetchAll(PDO::FETCH_ASSOC);
-
-    $stmt_all_ateliers = $db->prepare("SELECT * FROM logistique_ateliers WHERE id_encadreur = :id_enc ORDER BY nom_atelier ASC");
-    $stmt_all_ateliers->execute([":id_enc" => $id_enc]);
-    $all_ateliers = $stmt_all_ateliers->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +29,7 @@
     $nav_role_label = 'Logistique';
     $nav_home_url = Router::route('/logistique');
     $nav_extra_links = [];
-     require __DIR__ . '/partials/top-bar.php';
+    require __DIR__ . '/partials/top-bar.php';
     ?>
 
     <main class="main-content">
@@ -72,7 +45,7 @@
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value" id="statParticipants"><?php echo $count_participants; ?></div>
+                    <div class="stat-value" id="statParticipants"><?php echo (int) $count_participants; ?></div>
                     <div class="stat-label">Participants présents</div>
                 </div>
             </div>
@@ -82,7 +55,7 @@
                     <i class="fas fa-bed"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value" id="statDortoirsDispo"><?php echo $count_dortoirs; ?></div>
+                    <div class="stat-value" id="statDortoirsDispo"><?php echo (int) $count_dortoirs; ?></div>
                     <div class="stat-label">Dortoirs disponibles</div>
                 </div>
             </div>
@@ -92,7 +65,7 @@
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value" id="statAteliersActifs"><?php echo $count_ateliers; ?></div>
+                    <div class="stat-value" id="statAteliersActifs"><?php echo (int) $count_ateliers; ?></div>
                     <div class="stat-label">Ateliers actifs</div>
                 </div>
             </div>
@@ -143,22 +116,20 @@
                         </tr>
                     </thead>
                     <tbody id="dortoirsTableBody">
-                        <?php foreach($all_dortoirs as $d): 
-                            $stmt_count = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE dortoir_id = :id");
-                            $stmt_count->execute([":id" => $d['id_dortoir']]);
-                            $occupants = $stmt_count->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-                            $capacity = $d['capacite_dortoir'];
+                        <?php foreach ($all_dortoirs as $d):
+                            $occupants = (int) ($d['occupants'] ?? 0);
+                            $capacity = (int) ($d['capacity'] ?? 0);
                             $status = $occupants >= $capacity ? 'Plein' : 'Disponible';
                         ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($d['nom_dortoir']); ?></td>
-                            <td><?php echo htmlspecialchars($d['sexe_dortoir']); ?></td>
-                            <td><?php echo $d['age_min_dortoir'] . ' - ' . $d['age_max_dortoir']; ?> ans</td>
+                            <td><?php echo h($d['name'] ?? ''); ?></td>
+                            <td><?php echo h($d['sexe'] ?? ''); ?></td>
+                            <td><?php echo (int) ($d['age_min'] ?? 0) . ' - ' . (int) ($d['age_max'] ?? 0); ?> ans</td>
                             <td><?php echo $capacity; ?></td>
                             <td><?php echo $occupants; ?> / <?php echo $capacity; ?></td>
                             <td><span class="badge <?php echo $occupants >= $capacity ? 'badge-danger' : 'badge-success'; ?>"><?php echo $status; ?></span></td>
                             <td>
-                                <button class="btn-secondary" onclick="deleteDortoir(<?php echo $d['id_dortoir']; ?>)">
+                                <button class="btn-secondary" onclick="deleteDortoir(<?php echo (int) ($d['id'] ?? 0); ?>)">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -177,21 +148,19 @@
                 <h2 class="section-title">Répartition par atelier</h2>
             </div>
             <div id="atelierCards" class="rf-grid-cards">
-                <?php foreach($all_ateliers as $a):
-                    $stmt_count_a = $db->prepare("SELECT COUNT(*) as count FROM participants WHERE atelier_id = :id");
-                    $stmt_count_a->execute([":id" => $a['id_atelier']]);
-                    $occupants_a = $stmt_count_a->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-                    $capacity_a = $a['capacite_atelier'];
+                <?php foreach ($all_ateliers as $a):
+                    $occupants_a = (int) ($a['occupants'] ?? 0);
+                    $capacity_a = (int) ($a['capacity'] ?? 0);
                     $status_a = $occupants_a >= $capacity_a ? 'Plein' : 'Disponible';
                 ?>
                 <div class="rf-card">
-                    <h3><?php echo htmlspecialchars($a['nom_atelier']); ?></h3>
-                    <p class="text-small"><?php echo $a['age_min_atelier'] . ' - ' . $a['age_max_atelier']; ?> ans</p>
+                    <h3><?php echo h($a['name'] ?? ''); ?></h3>
+                    <p class="text-small"><?php echo (int) ($a['age_min'] ?? 0) . ' - ' . (int) ($a['age_max'] ?? 0); ?> ans</p>
                     <div class="card-stat">
                         <span class="badge"><?php echo $occupants_a; ?> / <?php echo $capacity_a; ?></span>
                         <span class="badge <?php echo $occupants_a >= $capacity_a ? 'badge-danger' : 'badge-success'; ?>"><?php echo $status_a; ?></span>
                     </div>
-                    <button class="btn-secondary" onclick="deleteAtelier(<?php echo $a['id_atelier']; ?>)">
+                    <button class="btn-secondary" onclick="deleteAtelier(<?php echo (int) ($a['id'] ?? 0); ?>)">
                         <i class="fas fa-trash"></i> Supprimer
                     </button>
                 </div>

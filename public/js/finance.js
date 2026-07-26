@@ -300,13 +300,12 @@ function exportFinanceParticipants() {
 function exportFinanceLogs() {
     const rows = [];
     document.querySelectorAll('#financeLogsBody tr').forEach(row => {
-        if (row.cells.length < 5) return;
+        if (row.cells.length < 4) return;
         rows.push({
             Date: row.cells[0]?.textContent.trim(),
             Encadreur: row.cells[1]?.textContent.trim(),
-            Module: row.cells[2]?.textContent.trim(),
-            Action: row.cells[3]?.textContent.trim(),
-            Detail: row.cells[4]?.textContent.trim()
+            Action: row.cells[2]?.textContent.trim(),
+            Detail: row.cells[3]?.textContent.trim()
         });
     });
     exportCsv('logs_encadreurs_' + new Date().toISOString().slice(0, 10) + '.csv', rows);

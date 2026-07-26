@@ -27,7 +27,8 @@
         }
     ,
         "files": [
-            "config/regex.php"
+            "config/regex.php",
+            "app/helpers/functions.php"
         ]
     },
     "autoload-dev": {
