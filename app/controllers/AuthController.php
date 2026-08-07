@@ -208,17 +208,22 @@ class AuthController extends Controller
                if(!$user){
                    $_SESSION['message'] = 'Aucun compte n\'est associé à cet email.';
                    $this->redirect('/');
+                   exit;
                }
                unset($user->password);
                $_SESSION['user'] = $user;
                $this->logger->store((int) $user->id, 'login', 'Connexion réussie via Google');
                $this->redirect('/' . $user->role_name);
+               exit;
            }else{
                $_SESSION['message'] = 'Email non vérifié par Google.';
                $this->redirect('/');
+               exit;
            }
        }catch(\GuzzleHttp\Exception\ClientException $e){
-            dd($e->getMessage());
+            $_SESSION['message'] = 'Service indisponible.';
+            $this->redirect('/');
+            exit;
        }
      
     }
