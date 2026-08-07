@@ -34,18 +34,10 @@ $statusMap = [
 
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetraiteFlow — Finance</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/encadreur.css">
-</head>
-
-<body>
+<?php
+$page_title = 'RetraiteFlow — Finance';
+require dirname(__DIR__, 1) . '/layouts/head.php';
+?>
     <?php
     $nav_user_name = $nom_enc;
     $nav_role_label = 'Finance';

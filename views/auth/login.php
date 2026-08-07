@@ -4,18 +4,11 @@ use Router\Router;
 
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetraiteFlow - Connexion</title>
-    <link rel="stylesheet" href="/css/login.css">
-    <script src="/js/script_login.js" defer></script>
-</head>
-
-<body>
+<?php
+$page_title = 'RetraiteFlow — Connexion';
+$extra_js = ['/js/script_login.js'];
+require dirname(__DIR__, 1) . '/layouts/auth-head.php';
+?>
     <div class="login-wrapper">
         <div class="login-container">
 

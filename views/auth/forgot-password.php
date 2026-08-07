@@ -4,17 +4,10 @@ use Router\Router;
 
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetraiteFlow - Mot de passe oublié</title>
-    <link rel="stylesheet" href="/css/login.css">
-</head>
-
-<body>
+<?php
+$page_title = 'RetraiteFlow — Mot de passe oublié';
+require dirname(__DIR__, 1) . '/layouts/auth-head.php';
+?>
     <div class="login-wrapper">
         <div class="login-container">
             <form action="<?= Router::route('/forgot-password') ?>" method="POST" class="login-form">

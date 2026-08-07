@@ -86,14 +86,16 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('participantId').value = '';
         if (modalTitle) modalTitle.innerHTML = '<i class="fas fa-user-plus"></i> Nouveau Participant';
         resetMontantState();
+        modal.classList.add('open');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
         if (!modal || !form) return;
+        modal.classList.remove('open');
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = '';
         form.reset();
         document.getElementById('formAction').value = 'save';
         document.getElementById('participantId').value = '';
@@ -136,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         handleGroupeChange();
         if (modalTitle) modalTitle.innerHTML = '<i class="fas fa-user-edit"></i> Modifier Participant';
+        modal.classList.add('open');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }

@@ -5,20 +5,13 @@ use Router\Router;
 $nom_enc = $nom_enc ?? current_user_name();
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetraiteFlow — Ajouter un membre</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/encadreur.css">
-    <link rel="stylesheet" href="/css/inscription_encadreur.css">
-    <script src="/js/phone-mask.js" defer></script>
-</head>
-
-<body class="register-page">
+<?php
+$page_title = 'RetraiteFlow — Ajouter un membre';
+$body_class = 'register-page';
+$extra_css = ['/css/inscription_encadreur.css'];
+$extra_js = ['/js/phone-mask.js'];
+require dirname(__DIR__, 1) . '/layouts/head.php';
+?>
     <?php
     $nav_user_name = $nom_enc;
     $nav_role_label = 'Cordon / Super-admin';
