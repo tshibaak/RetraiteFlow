@@ -26,7 +26,7 @@ $nom_enc = $nom_enc ?? current_user_name();
     $nav_extra_links = [
         ['url' => Router::route('/cordon'), 'icon' => 'fas fa-chart-pie', 'label' => 'Tableau de bord'],
     ];
-    require dirname(__DIR__) . '/partials/top-bar.php';
+    require dirname(__DIR__) . '/layouts/top-bar.php';
     ?>
 
     <main class="main-content">

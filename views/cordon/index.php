@@ -40,7 +40,7 @@ $activity_logs = $activity_logs ?? [];
     $nav_extra_links = [
         ['url' => Router::route('/coordon/register'), 'icon' => 'fas fa-user-plus', 'label' => 'Ajouter un membre'],
     ];
-    require __DIR__ . '/partials/top-bar.php';
+    require dirname(__DIR__, 1) . '/layouts/top-bar.php';
     ?>
 
     <main class="main-content">

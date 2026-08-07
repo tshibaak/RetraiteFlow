@@ -10,7 +10,25 @@ if (!function_exists('h')) {
 if (!function_exists('current_user')) {
     function current_user(): ?object
     {
-        return $_SESSION['user'] ?? null;
+        $user = $_SESSION['user'] ?? null;
+
+        if ($user === null) {
+            return null;
+        }
+
+        if (is_object($user)) {
+            return $user;
+        }
+
+        if (is_array($user)) {
+            $normalizedUser = new stdClass();
+            foreach ($user as $key => $value) {
+                $normalizedUser->{$key} = $value;
+            }
+            return $normalizedUser;
+        }
+
+        return null;
     }
 }
 

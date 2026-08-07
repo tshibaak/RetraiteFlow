@@ -63,8 +63,18 @@ class AuthController extends Controller
 
     public function showRegister(): void
     {
+        $user = current_user();
+        if (!$user) {
+            View::view('auth.create-account');
+            return;
+        }
         $this->requireAuth(['coordination', 'coordon']);
         View::view('auth.register');
+    }
+
+    public function createAccount(): void
+    {
+        View::view('auth.create-account');
     }
 
     public function register(): void
@@ -164,5 +174,88 @@ class AuthController extends Controller
         session_destroy();
         header('Location: ' . \Router\Router::route('/'));
         exit;
+    }
+
+    public function google(){
+       $client = new \GuzzleHttp\Client();
+       try{       
+          $reponse = $client->request('GET','https://accounts.google.com/.well-known/openid-configuration');
+        
+          $links = json_decode($reponse->getBody()->getContents());
+          $user_info_endpoint = $links->userinfo_endpoint;
+          $token_endpoint = $links->token_endpoint;
+        
+          $reponse = $client->request('POST',$token_endpoint,[
+               'form_params' => [
+                   'client_id' => $_ENV['GOOGLE_CLIENT_ID'] ?? '',
+                   'client_secret' => $_ENV['GOOGLE_CLIENT_SECRET'] ?? '',
+                   'code' => $_GET['code'],
+                   'redirect_uri' => $_ENV['GOOGLE_REDIRECT_URI'] ?? '',
+                   'grant_type' => 'authorization_code'
+               ],
+           ]);
+          $access_token = json_decode($reponse->getBody()->getContents())?->access_token;
+          $reponse = $client->request('GET',$user_info_endpoint,[
+               'headers' => [
+                   'Authorization' => 'Bearer ' . $access_token,
+               ],
+           ]);
+
+            $reponse = json_decode($reponse->getBody()->getContents());
+       
+           if($reponse->email_verified === true){
+               $user = $this->user->findByEmail($reponse->email, \PDO::FETCH_OBJ);
+               if(!$user){
+                   $_SESSION['message'] = 'Aucun compte n\'est associé à cet email.';
+                   $this->redirect('/');
+               }
+               unset($user->password);
+               $_SESSION['user'] = $user;
+               $this->logger->store((int) $user->id, 'login', 'Connexion réussie via Google');
+               $this->redirect('/' . $user->role_name);
+           }else{
+               $_SESSION['message'] = 'Email non vérifié par Google.';
+               $this->redirect('/');
+           }
+       }catch(\GuzzleHttp\Exception\ClientException $e){
+            dd($e->getMessage());
+       }
+     
+    }
+
+    public function forgotPassword(): void
+    {
+        View::view('auth.forgot-password');
+    }
+
+    public function forgotPasswordSubmit(): void
+    {
+        $email = self::sanitize($_POST['email'] ?? '');
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['message'] = 'Veuillez renseigner une adresse email valide.';
+            $this->redirect('/forgot-password');
+        }
+
+        $user = $this->user->findByEmail($email, \PDO::FETCH_OBJ);
+        if (!$user) {
+            $_SESSION['message'] = 'Aucun compte ne correspond à cette adresse.';
+            $this->redirect('/forgot-password');
+        }
+
+        $_SESSION['message'] = 'Si cet email existe, un lien de réinitialisation vous sera envoyé prochainement.';
+        $this->redirect('/forgot-password');
+    }
+
+    public function profile(): void
+    {
+        $this->requireAuth();
+        View::view('profile');
+    }
+
+    public function settings(): void
+    {
+        $this->requireAuth();
+        View::view('settings');
     }
 }

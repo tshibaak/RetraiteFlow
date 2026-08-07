@@ -29,7 +29,7 @@ $stats_total_paiment = $stats_total_paiment ?? 0;
     $nav_role_label = 'Encadreur';
     $nav_home_url = Router::route('/encadreur');
     $nav_extra_links = [];
-    require __DIR__ . '/partials/top-bar.php';
+    require dirname(__DIR__, 1) . '/layouts/top-bar.php';
     ?>
 
     <main class="main-content">

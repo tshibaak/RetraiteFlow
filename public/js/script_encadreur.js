@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchClear = document.getElementById('searchClear');
     const userMenuBtn = document.getElementById('userMenuBtn');
     const userMenuDropdown = document.getElementById('userMenuDropdown');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenuPanel = document.getElementById('mobileMenuPanel');
 
     const message = document.getElementById('confirmation');
     if (message) {
@@ -35,6 +37,21 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
                 userMenuDropdown.classList.remove('show');
                 userMenuBtn.classList.remove('active');
+            }
+        });
+    }
+
+    if (mobileMenuToggle && mobileMenuPanel) {
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileMenuToggle.classList.toggle('active');
+            mobileMenuPanel.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!mobileMenuToggle.contains(e.target) && !mobileMenuPanel.contains(e.target)) {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenuPanel.classList.remove('show');
             }
         });
     }

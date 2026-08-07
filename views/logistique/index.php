@@ -29,7 +29,7 @@ $all_ateliers = $all_ateliers ?? [];
     $nav_role_label = 'Logistique';
     $nav_home_url = Router::route('/logistique');
     $nav_extra_links = [];
-    require __DIR__ . '/partials/top-bar.php';
+    require dirname(__DIR__, 1) . '/layouts/top-bar.php';
     ?>
 
     <main class="main-content">
